@@ -1,0 +1,1665 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta name="robots" content="noindex, nofollow" />
+<title>2029 年度国考备考学习日历</title>
+<style>
+:root{
+  --bg:#f4f6fb; --card:#fff; --line:#e4e8f0; --text:#1f2733; --muted:#6b7688;
+  --brand:#2f6fed; --soft:#eef3fe;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--text);font-family:"Microsoft YaHei","PingFang SC","Hiragino Sans GB",system-ui,-apple-system,"Segoe UI",sans-serif;font-size:14px;line-height:1.65}
+header{position:sticky;top:0;z-index:30;background:rgba(255,255,255,.94);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+.htop{max-width:1200px;margin:0 auto;padding:14px 18px 8px}
+h1{margin:0;font-size:18px;font-weight:700;letter-spacing:.3px}
+.sub{margin-top:3px;color:var(--muted);font-size:12.5px}
+nav.tabs{max-width:1200px;margin:0 auto;padding:0 12px 8px;display:flex;gap:6px;flex-wrap:wrap}
+nav.tabs button{border:1px solid transparent;background:transparent;color:var(--muted);padding:6px 14px;border-radius:999px;font-size:13.5px;cursor:pointer;font-family:inherit}
+nav.tabs button:hover{background:#eef1f7;color:var(--text)}
+nav.tabs button.active{background:var(--brand);color:#fff;font-weight:600}
+main{max-width:1200px;margin:0 auto;padding:14px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:13px 15px;box-shadow:0 1px 2px rgba(23,35,61,.04)}
+.card + .card{margin-top:14px}
+.ctitle{font-size:14.5px;font-weight:700;margin:0 0 8px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+.muted{color:var(--muted)}
+.small{font-size:12.5px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.grid2{display:grid;grid-template-columns:1.55fr 1fr;gap:14px;align-items:start}
+.calwrap{display:grid;grid-template-columns:1.6fr 1fr;gap:14px;align-items:start}
+.stat{background:#fff;border:1px solid var(--line);border-radius:14px;padding:11px 13px}
+.stat .k{color:var(--muted);font-size:12.5px}
+.stat .v{font-size:23px;font-weight:700;margin-top:2px;letter-spacing:.5px}
+.stat .v small{font-size:12.5px;font-weight:400;color:var(--muted);margin-left:4px}
+.bar{height:7px;border-radius:999px;background:#eef1f7;overflow:hidden}
+.bar > i{display:block;height:100%;background:var(--brand);border-radius:999px}
+.badge{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;background:var(--soft);color:var(--brand);font-weight:600}
+.badge.grey{background:#f1f3f8;color:var(--muted)}
+.bignum{font-size:15px;font-weight:600}
+
+/* 日历 */
+.calnav{display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap}
+.calnav .ym{font-size:16px;font-weight:700;min-width:120px}
+.btn{border:1px solid var(--line);background:#fff;border-radius:9px;padding:5px 12px;cursor:pointer;font-family:inherit;font-size:13px;color:var(--text)}
+.btn:hover{border-color:#c9d3e6;background:#fafbfe}
+.btn.primary{background:var(--brand);border-color:var(--brand);color:#fff}
+.dow{display:grid;grid-template-columns:repeat(7,1fr);gap:6px;margin-bottom:6px}
+.dow span{text-align:center;color:var(--muted);font-size:12.5px;padding:2px 0}
+.grid{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.cell{position:relative;min-height:82px;background:#fff;border:1px solid var(--line);border-radius:11px;padding:5px 6px;cursor:pointer;overflow:hidden;transition:.12s}
+.cell:hover{border-color:#b9c9ea;box-shadow:0 2px 8px rgba(47,111,237,.10)}
+.cell.blank{background:transparent;border:1px dashed #e8ecf4;cursor:default}
+.cell.out{opacity:.38}
+.cell.sel{border-color:var(--brand);box-shadow:0 0 0 2px rgba(47,111,237,.18)}
+.cell.today{background:#f2f7ff}
+.cell.exam{border-color:#f3b8c6;background:#fff5f7}
+.cell .dnum{font-size:13.5px;font-weight:700}
+.cell .dnum.sun{color:#d9534f}
+.cell .phstrip{position:absolute;left:0;top:0;bottom:0;width:3px;opacity:.9}
+.cell .dots{display:flex;gap:3px;margin-top:4px;flex-wrap:wrap}
+.dot{width:7px;height:7px;border-radius:50%}
+.cell .cnt{font-size:11.5px;color:var(--muted);margin-top:3px}
+.cell .cellbar{height:4px;border-radius:999px;background:#eef1f7;margin-top:5px;overflow:hidden}
+.cell .cellbar > i{display:block;height:100%;background:#16a34a}
+.cell .tag{position:absolute;right:6px;top:5px;font-size:10.5px;color:#fff;border-radius:5px;padding:0 5px}
+.cell .note{font-size:11px;color:#0e7490;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* 任务面板 */
+.tasks{list-style:none;margin:0;padding:0}
+.tasks li{display:flex;gap:9px;align-items:flex-start;padding:7px 9px;border:1px solid var(--line);border-radius:10px;margin-bottom:6px;background:#fff}
+.tasks li.rest{background:#fafbfe;border-style:dashed;color:#7b8794}
+.tasks a.tlink{color:var(--brand);text-decoration:underline dotted;text-underline-offset:3px;font-weight:600}
+.tasks a.tlink:hover{text-decoration-style:solid}
+.tasks li.done{background:#f6fbf7;border-color:#cfe9d6}
+.tasks li.done .tt{text-decoration:line-through;color:#8c9aa9}
+.ck{width:17px;height:17px;flex:0 0 17px;margin-top:2px;cursor:pointer;accent-color:#16a34a}
+.tt{font-size:13.5px}
+.meta{font-size:12px;color:var(--muted);margin-top:2px}
+.sbadge{display:inline-block;min-width:38px;text-align:center;font-size:11.5px;color:#fff;border-radius:6px;padding:1px 6px;font-weight:600}
+
+/* 自检 */
+.checklist{list-style:none;margin:0;padding:0}
+.checklist li{display:flex;gap:10px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed #edf0f6}
+.checklist li:last-child{border-bottom:0}
+.numtable{width:100%;border-collapse:collapse}
+.numtable th,.numtable td{border-bottom:1px solid var(--line);padding:7px 8px;text-align:left;font-size:13px}
+.numtable th{color:var(--muted);font-weight:600;background:#fafbfe}
+.numtable input{width:110px;border:1px solid var(--line);border-radius:8px;padding:4px 8px;font-family:inherit;font-size:13px}
+.numtable input:focus{outline:none;border-color:var(--brand)}
+textarea{width:100%;min-height:74px;border:1px solid var(--line);border-radius:10px;padding:8px 10px;font-family:inherit;font-size:13px;resize:vertical}
+textarea:focus{outline:none;border-color:var(--brand)}
+.phlist{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.phcard{border:1px solid var(--line);border-radius:13px;padding:11px 12px;background:#fff}
+.phcard .phname{font-weight:700;font-size:14px;display:flex;align-items:center;gap:7px}
+.phcard .pdot{width:9px;height:9px;border-radius:50%}
+.phcard .phrange{color:var(--muted);font-size:12px;margin:4px 0 7px}
+.phcard .phgoal{font-size:12.5px;color:#33415c}
+.phcard .phhours{font-size:12px;color:var(--muted);margin-top:7px}
+.weekmini{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+.wcell{border:1px solid var(--line);border-radius:10px;padding:7px 8px;background:#fff;font-size:12.5px}
+a{color:var(--brand)}
+.wcell .wd{font-weight:700;font-size:12.5px}
+.wcell .wdate{color:var(--muted);font-size:11.5px}
+.wcell .wt{margin-top:5px;color:#33415c;font-size:11.5px;line-height:1.5}
+.wcell{border-radius:12px;padding:9px 10px;display:flex;flex-direction:column;gap:6px;background:var(--card-bg)}
+.whead{display:flex;align-items:baseline;justify-content:space-between;gap:6px}
+.whead .wd{font-weight:700;font-size:12.5px}
+.whead .wdate{font-size:11px;color:var(--muted)}
+.wprog{height:5px;border-radius:999px;background:rgba(120,160,220,.16);overflow:hidden}
+.wprog > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.wcell .wt{display:flex;flex-direction:column;gap:4px;font-size:11.5px;line-height:1.5;margin:0;color:var(--text)}
+.witem{display:flex;gap:5px;align-items:flex-start}
+.wdot{width:6px;height:6px;border-radius:50%;margin-top:5px;flex:0 0 6px}
+.wcell.wtoday{border-color:var(--accent);box-shadow:0 0 0 2px hsl(var(--h) 80% 60% / .18)}
+.wcell.wempty{opacity:.62}
+.kpirow{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+.kpibox{background:rgba(255,255,255,.55);border:1px solid var(--line);border-radius:12px;padding:8px 13px;min-width:118px}
+html[data-theme="dark"] .kpibox{background:rgba(255,255,255,.05)}
+.kpibox .k{font-size:11.5px;color:var(--muted)}
+.kpibox .v{font-size:16px;font-weight:700;margin-top:2px}
+.weeksel{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:12px}
+.inline{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.kpi{display:flex;gap:18px;flex-wrap:wrap;margin-top:10px}
+.kpi div{font-size:12.5px;color:var(--muted)}
+.kpi b{display:block;font-size:17px;color:var(--text)}
+footer{max-width:1200px;margin:0 auto;padding:6px 18px 30px;color:var(--muted);font-size:12px}
+@media (max-width:1000px){
+  .grid4{grid-template-columns:repeat(2,1fr)}
+  .grid2,.calwrap{grid-template-columns:1fr}
+  .phlist{grid-template-columns:1fr}
+  .weekmini{grid-template-columns:repeat(2,1fr)}
+  .cell{min-height:84px}
+}
+@media print{
+  header,nav.tabs,.calnav,.btn{display:none!important}
+  body{background:#fff}
+  .card{break-inside:avoid;box-shadow:none}
+}
+
+/* ================= 主题 v2：卡片加玻璃质感 ================= */
+:root{
+  --h:214;
+  --accent:hsl(var(--h) 72% 52%);
+  --accent-2:hsl(calc(var(--h) + 45) 78% 58%);
+  --accent-soft:hsl(var(--h) 85% 95%);
+  --text:#1c2634; --muted:#6a7a90; --line:rgba(26,58,110,.10);
+  --card-bg:rgba(255,255,255,.76); --shadow:0 10px 28px rgba(27,52,96,.10);
+}
+html[data-theme="dark"]{
+  --text:#e6ecf5; --muted:#9db0c8; --line:rgba(255,255,255,.12);
+  --card-bg:rgba(26,34,48,.72); --accent-soft:rgba(255,255,255,.07);
+  --shadow:0 10px 28px rgba(0,0,0,.38);
+}
+body{
+  font-family:"LXGW WenKai","霞鹜文楷","HarmonyOS Sans SC","MiSans","PingFang SC","Microsoft YaHei",system-ui,sans-serif;
+  background:
+    radial-gradient(1100px 560px at 10% -10%,hsl(var(--h) 88% 93%),transparent 60%),
+    radial-gradient(900px 480px at 92% -6%,hsl(calc(var(--h) + 42) 86% 94%),transparent 58%),
+    linear-gradient(180deg,#f4f7fc,#e9eff8 62%,#eef2f9);
+  background-attachment:fixed;
+  color:var(--text);
+}
+html[data-theme="dark"] body{
+  background:
+    radial-gradient(1100px 560px at 10% -10%,hsl(var(--h) 45% 18%),transparent 60%),
+    radial-gradient(900px 480px at 92% -6%,hsl(calc(var(--h) + 42) 45% 17%),transparent 58%),
+    linear-gradient(180deg,#0f1522,#0b111b 62%,#0e1420);
+}
+header{background:rgba(255,255,255,.55);border-bottom:1px solid var(--line);backdrop-filter:blur(14px) saturate(1.2)}
+html[data-theme="dark"] header{background:rgba(16,22,34,.62)}
+.htop{display:flex;align-items:center;gap:16px;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:12px;min-width:0}
+.brand-logo{width:42px;height:42px;flex:0 0 42px;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:700;color:#fff;background:linear-gradient(140deg,var(--accent),var(--accent-2));box-shadow:0 8px 18px hsl(var(--h) 70% 60% / .35)}
+h1{font-size:20px;letter-spacing:.4px}
+.hero-right{display:flex;align-items:center;gap:14px}
+.clock{text-align:right;line-height:1.2}
+.clock-time{font-size:22px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:1px;background:linear-gradient(120deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.clock-date{font-size:12px;color:var(--muted)}
+.hero-tools{display:flex;align-items:center;gap:10px}
+.iconbtn{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:rgba(255,255,255,.72);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;color:var(--text);padding:0}
+.iconbtn:hover{border-color:var(--accent);color:var(--accent)}
+html[data-theme="dark"] .iconbtn{background:rgba(255,255,255,.07)}
+.hue{width:92px;accent-color:var(--accent)}
+nav.tabs{gap:8px;padding:0 12px 10px}
+nav.tabs button{border:1px solid var(--line);background:rgba(255,255,255,.6);color:var(--muted);padding:7px 16px;border-radius:999px;font-weight:600}
+html[data-theme="dark"] nav.tabs button{background:rgba(255,255,255,.06)}
+nav.tabs button.active{background:linear-gradient(120deg,var(--accent),var(--accent-2));border-color:transparent;color:#fff;box-shadow:0 6px 16px hsl(var(--h) 70% 60% / .35)}
+.card{background:var(--card-bg);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);backdrop-filter:blur(10px) saturate(1.15);padding:15px 17px}
+.stat{background:var(--card-bg);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);backdrop-filter:blur(10px)}
+.stat .v{font-size:25px;letter-spacing:.5px}
+.bar{background:rgba(120,150,200,.16)}
+.bar > i{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.badge{background:var(--accent-soft);color:var(--accent);font-weight:600}
+html[data-theme="dark"] .badge{background:rgba(255,255,255,.08)}
+.btn{border-radius:999px;background:rgba(255,255,255,.72);border:1px solid var(--line);padding:6px 15px}
+.btn:hover{border-color:var(--accent);color:var(--accent);background:#fff}
+html[data-theme="dark"] .btn{background:rgba(255,255,255,.07)}
+.btn.primary{background:linear-gradient(120deg,var(--accent),var(--accent-2));border-color:transparent}
+.cell{border-radius:14px;background:var(--card-bg);border:1px solid var(--line)}
+.cell:hover{box-shadow:0 8px 20px rgba(28,52,96,.14);transform:translateY(-1px)}
+.cell.sel{border-color:var(--accent);box-shadow:0 0 0 2px hsl(var(--h) 80% 60% / .25)}
+.cell.today{background:hsl(var(--h) 85% 96%)}
+html[data-theme="dark"] .cell.today{background:rgba(255,255,255,.06)}
+.cell .cellbar > i{background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.tasks li{border-radius:12px;background:var(--card-bg);border:1px solid var(--line)}
+.tasks li.done{background:hsl(150 45% 96%);border-color:hsl(150 40% 84%)}
+html[data-theme="dark"] .tasks li.done{background:rgba(60,140,100,.14);border-color:rgba(60,140,100,.3)}
+.phcard,.wcell{border-radius:14px;background:var(--card-bg);border:1px solid var(--line)}
+.numtable input,textarea{border-radius:10px;background:rgba(255,255,255,.78);border:1px solid var(--line);color:var(--text)}
+html[data-theme="dark"] .numtable input,html[data-theme="dark"] textarea{background:rgba(255,255,255,.06)}
+.numtable th{background:rgba(255,255,255,.42)}
+html[data-theme="dark"] .numtable th{background:rgba(255,255,255,.05)}
+.checklist li{border-bottom-color:var(--line)}
+.tasks a.tlink{color:var(--accent)}
+.hero-clock{display:flex;align-items:flex-end;gap:22px;flex-wrap:wrap}
+.bigclock{font-size:42px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:2px;line-height:1.05;background:linear-gradient(120deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.bigdate{color:var(--muted);font-size:13px;margin-top:2px}
+.hero-side{display:flex;gap:26px;flex-wrap:wrap}
+.hero-side .k{color:var(--muted);font-size:12.5px}
+.hero-side .v{font-size:18px;font-weight:700}
+
+/* ================= 迷你月历、时间进度、光标光晕 ================= */
+.ovgrid{display:grid;grid-template-columns:298px 1fr;gap:14px;align-items:start}
+@media (max-width:900px){.ovgrid{grid-template-columns:1fr}}
+.statgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:8px}
+.mhead .mym{font-weight:700;font-size:15px;letter-spacing:.3px}
+.mnav{width:30px;height:30px;border-radius:10px;border:1px solid var(--line);background:rgba(255,255,255,.7);cursor:pointer;color:var(--muted);font-size:14px;line-height:1;padding:0}
+.mnav:hover{border-color:var(--accent);color:var(--accent)}
+.mfoot{display:flex;justify-content:space-between;margin-top:9px}
+.mnav.expand{font-size:15px}
+.mnav.expand:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
+html[data-theme="dark"] .mnav{background:rgba(255,255,255,.06)}
+.mcal{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-top:10px}
+.mcal .mdow{text-align:center;color:var(--muted);font-size:12px;padding:2px 0}
+.mcell{position:relative;height:34px;display:flex;align-items:center;justify-content:center;border-radius:11px;font-size:13.5px;cursor:pointer;background:rgba(120,160,220,.10);border:1px solid transparent;transition:.14s}
+.mcell.mhas{background:hsl(var(--h) 80% 94%)}
+html[data-theme="dark"] .mcell.mhas{background:rgba(255,255,255,.07)}
+.mcell.mout{background:transparent;color:rgba(130,150,180,.42);cursor:default}
+.mcell:hover{border-color:var(--accent)}
+.mcell.msel{background:linear-gradient(140deg,var(--accent),var(--accent-2));color:#fff;box-shadow:0 6px 14px hsl(var(--h) 70% 60% / .35)}
+.mcell.mtoday:not(.msel){border-color:var(--accent);color:var(--accent);font-weight:700}
+.mcell.mdone::after{content:'';position:absolute;bottom:5px;width:4px;height:4px;border-radius:50%;background:var(--accent)}
+.prog{margin-bottom:11px}
+.prog:last-child{margin-bottom:0}
+.prog .pt{display:flex;justify-content:space-between;align-items:baseline;font-size:12.5px;margin-bottom:5px}
+.prog .pv{font-weight:700;font-size:14px}
+.prog .pl{color:var(--muted)}
+.prog .pb{height:9px;border-radius:999px;background:rgba(120,160,220,.16);overflow:hidden}
+.prog .pb > i{display:block;height:100%;border-radius:999px;background:linear-gradient(90deg,var(--accent),var(--accent-2))}
+.cd{display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.cd .cdl{font-size:12.5px;color:var(--muted)}
+.cd .cdn{font-size:15px;font-weight:700;margin-top:3px}
+.cd .cdd{font-size:12px;color:var(--muted);margin-top:2px}
+.cd .cdbig{font-size:36px;font-weight:800;line-height:1;background:linear-gradient(120deg,var(--accent),var(--accent-2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.cd .cdu{font-size:12.5px;color:var(--muted);margin-left:3px}
+
+/* ================= 浮岛导航、右侧悬浮钮、重点框 ================= */
+header{top:10px;max-width:1180px;margin:10px auto 0;border:1px solid var(--line);border-radius:20px;box-shadow:var(--shadow)}
+.hlbox{border-left:3px solid var(--accent);background:var(--accent-soft);border-radius:10px;padding:8px 12px;font-size:12.5px;color:var(--muted);margin-bottom:9px}
+html[data-theme="dark"] .hlbox{background:rgba(255,255,255,.06);color:var(--muted)}
+.fab-wrap{position:fixed;right:18px;bottom:24px;display:flex;flex-direction:column;gap:10px;z-index:40}
+.fab{width:46px;height:46px;border-radius:50%;border:1px solid var(--line);background:var(--card-bg);color:var(--text);cursor:pointer;
+  box-shadow:var(--shadow);backdrop-filter:blur(10px);font-size:12.5px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0;transition:.16s}
+.fab:hover{color:var(--accent);border-color:var(--accent);transform:translateY(-2px)}
+.fab svg{width:46px;height:46px;position:absolute;transform:rotate(-90deg)}
+.fab.ring{position:relative}
+.fab .arrow{font-size:17px;line-height:1}
+.fab small{position:absolute;bottom:9px;font-size:9px;color:var(--muted)}
+</style>
+</head>
+<body>
+<header>
+  <div class="htop">
+    <div class="brand">
+      <div class="brand-logo">考</div>
+      <div style="min-width:0">
+        <h1>2029 年度国考备考学习日历</h1>
+        <div class="sub" id="heroMeta">行测 / 申论 / 公安专业科目　预计笔试 2028-11 月下旬</div>
+      </div>
+    </div>
+    <div class="hero-right">
+      <div class="clock">
+        <div class="clock-time" id="clockTime">--:--:--</div>
+        <div class="clock-date" id="clockDate">正在加载</div>
+      </div>
+      <div class="hero-tools">
+        <button class="iconbtn" id="themeBtn" title="切换亮色与暗色">🌙</button>
+        <input class="hue" id="hueRange" type="range" min="0" max="360" step="1" value="214" title="拖动切换主题色" />
+      </div>
+    </div>
+  </div>
+  <nav class="tabs" id="tabs">
+    <button data-view="overview" class="active">总览</button>
+    <button data-view="calendar">日历</button>
+    <button data-view="week">每周自检</button>
+    <button data-view="month">每月自检</button>
+    <button data-view="phase">阶段与节点</button>
+    <button data-view="material">资料与课程</button>
+  </nav>
+</header>
+<main id="view"></main>
+<footer>
+  <div class="small" id="storage"></div>
+</footer>
+<div class="fab-wrap">
+  <button class="fab ring" id="fabTop" title="回到顶部">
+    <svg viewBox="0 0 46 46">
+      <circle cx="23" cy="23" r="21" fill="none" stroke="rgba(120,160,220,.25)" stroke-width="2"></circle>
+      <circle id="fabRing" cx="23" cy="23" r="21" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="132" stroke-dashoffset="132"></circle>
+    </svg>
+    <span class="arrow">↑</span>
+  </button>
+  <button class="fab" id="fabToday" title="回到今天">今天</button>
+</div>
+
+<script>
+/* ============ 基础配置 ============ */
+const CFG = {
+  start : '2026-10-09',     // 日历起点
+  end   : '2028-11-26',     // 日历终点
+  exam  : '2028-11-25',     // 预计笔试日
+  examText : '预计 2028 年 11 月下旬，以当年《招考公告》为准'
+};
+
+const SUBJECT_COLOR = {
+  '行测':'#3b7df6','申论':'#16a34a','公安':'#e08a00','常识':'#8b5cf6',
+  '自检':'#64748b','模考':'#e11d48','节点':'#0ea5e9','考前':'#0ea5e9',
+  '笔试':'#e11d48','复盘':'#64748b'
+};
+
+SUBJECT_COLOR['调整'] = '#94a3b8';
+
+/* ============ 知识点轮换表 ============ */
+const HANGCE = [
+  {n:'言语理解与表达', d:'逻辑填空、片段阅读、语句表达'},
+  {n:'判断推理',      d:'图形推理、定义判断、类比推理、逻辑判断'},
+  {n:'资料分析',      d:'增长率、比重、平均数、倍数与速算技巧'},
+  {n:'数量关系',      d:'工程、行程、经济利润、排列组合、概率、几何'},
+  {n:'常识判断',      d:'政治时政、法律、经济、科技、人文、地理'}
+];
+const SHENLUN = [
+  {n:'材料阅读与要点提取', d:'关联词定位、段落合并、要点归类'},
+  {n:'归纳概括',          d:'概括做法、概括问题、概括原因、概括成效'},
+  {n:'综合分析',          d:'解释型、评价型、比较型、启示型'},
+  {n:'提出对策',          d:'问题反推对策、经验借鉴、可操作性表述'},
+  {n:'贯彻执行',          d:'讲话稿、倡议书、工作方案、短评、汇报材料'},
+  {n:'申发论述',          d:'立意确定、结构搭建、论证展开'}
+];
+const GONGAN = [
+  {n:'职业素养与纪律要求',   d:'政治素质、职业道德、人民警察纪律',
+   u:'《人民警察法》义务与纪律部分，加公安机关人民警察职业道德规范'},
+  {n:'宪法与人民警察法',     d:'人民警察职权、义务、组织管理',
+   u:'《宪法》国家机构部分与《人民警察法》职权、组织管理部分'},
+  {n:'刑法总则与重点罪名',   d:'犯罪构成、共同犯罪、常见罪名',
+   u:'《刑法》总则的犯罪与刑罚部分，重点记常见罪名的构成要件'},
+  {n:'刑事诉讼法与办案程序', d:'立案、侦查、强制措施、证据',
+   u:'《刑事诉讼法》立案、侦查、强制措施与证据部分'},
+  {n:'治安管理处罚法与行政处罚', d:'处罚种类、程序、执行',
+   u:'《治安管理处罚法》处罚种类与处罚程序部分'},
+  {n:'国家安全法与网络安全法', d:'国家安全制度、网络安全管理',
+   u:'《国家安全法》与《网络安全法》的总则和法律责任部分'},
+  {n:'公安基础知识',         d:'公安机关性质、职能、工作原则与机构设置',
+   u:'考试大纲基础知识部分的公安基础知识'},
+  {n:'群众工作能力',         d:'群众工作方法、矛盾纠纷调解',
+   u:'考试大纲基本能力部分的群众工作与沟通协调'},
+  {n:'巡逻盘查与警情处置',   d:'盘查规范、接处警流程、现场处置',
+   u:'《人民警察使用警械和武器条例》与接处警工作规范'},
+  {n:'情报信息与应急处置',   d:'情报研判、群体性事件与突发事件处置',
+   u:'考试大纲基本能力部分的信息工作与应急处理'}
+];
+
+const hce = i => HANGCE[((i % 5) + 5) % 5];
+const sl  = i => SHENLUN[((i % 6) + 6) % 6];
+const ga  = i => GONGAN[((i % 10) + 10) % 10];
+/* 公安专业科目暂缓：专题表与资料链接保留，需要时改成 true */
+const GONGAN_ENABLED = false;
+const KEMU = [{n:'资料分析'},{n:'判断推理'},{n:'言语理解与表达'},{n:'数量关系'}];
+const km = i => KEMU[((i % 4) + 4) % 4];
+const SL_BLOCK = [
+  {to:2,  n:'材料阅读与要点提取'},
+  {to:5,  n:'归纳概括'},
+  {to:8,  n:'综合分析'},
+  {to:11, n:'提出对策'},
+  {to:14, n:'贯彻执行'},
+  {to:17, n:'申发论述'}
+];
+function slBlock(wip){
+  for(let i=0;i<SL_BLOCK.length;i++){ if(wip <= SL_BLOCK[i].to) return SL_BLOCK[i]; }
+  return SL_BLOCK[SL_BLOCK.length-1];
+}
+const BOOK = [
+  {to:1,  part:'第一部分 政治理论',       day:'DAY 01-02', mod:''},
+  {to:3,  part:'第二部分 常识判断',       day:'DAY 03-07', mod:''},
+  {to:6,  part:'第三部分 言语理解与表达', day:'DAY 08-13', mod:'言语理解与表达'},
+  {to:9,  part:'第四部分 数量关系',       day:'DAY 14-21', mod:'数量关系'},
+  {to:12, part:'第五部分 判断推理',       day:'DAY 22-25', mod:'判断推理'},
+  {to:15, part:'第六部分 资料分析',       day:'DAY 26-30', mod:'资料分析'},
+  {to:17, part:'全书回看',               day:'错题对应章节', mod:'资料分析'}
+];
+function bookBlock(wip){
+  for(let i=0;i<BOOK.length;i++){ if(wip <= BOOK[i].to) return BOOK[i]; }
+  return BOOK[BOOK.length-1];
+}
+/* 辅导用书 30 个 DAY 的章节与页码 */
+const BOOK_DAYS = [
+  'DAY 01 · 第一部分 政治理论 第一章 毛泽东思想和中国特色社会主义理论体系概论 P3-7',
+  'DAY 02 · 第一部分 政治理论 第二章 习近平新时代中国特色社会主义思想概论 P8-18',
+  'DAY 03 · 第二部分 常识判断 第一章 政治知识 哲学与时事政治 P19-34',
+  'DAY 04 · 第二部分 常识判断 第二章 法律知识 主要法律法规与新法新规 P35-50',
+  'DAY 05 · 第二部分 常识判断 第三章 人文历史知识 中国古代史与中国近现代史 P51-61',
+  'DAY 06 · 第二部分 常识判断 第三章 第三、四节 文学常识与中国传统文化 P62-79',
+  'DAY 07 · 第二部分 常识判断 第四章 科学常识 物理、环保、地理、近年科技成就 P80-89',
+  'DAY 08 · 第二部分 常识判断 第五章 经济学知识 P90-98',
+  'DAY 09 · 第三部分 言语理解与表达 第一章 选词填空 语境分析与词语辨析 P99-117',
+  'DAY 10 · 第三部分 言语理解与表达 第二章 片段阅读 主旨意图与标题添加 P118-125',
+  'DAY 11 · 第三部分 言语理解与表达 第二章 片段阅读 查找细节与推断下文 P126-137',
+  'DAY 12 · 第三部分 言语理解与表达 第三章 语句表达 句子填空与句子排序 P138-145',
+  'DAY 13 · 第三部分 言语理解与表达 第四章 文章阅读 P146-158',
+  'DAY 14 · 第四部分 数量关系 第一章 计算问题 和差倍比、整除特性、等差数列 P159-169',
+  'DAY 15 · 第四部分 数量关系 第二章 几何问题 P170-174',
+  'DAY 16 · 第四部分 数量关系 第三章 排列组合问题 P175-179',
+  'DAY 17 · 第四部分 数量关系 第四章 概率问题 P180-184',
+  'DAY 18 · 第四部分 数量关系 第五章 行程问题 P185-189',
+  'DAY 19 · 第四部分 数量关系 第六章 工程问题 P190-193',
+  'DAY 20 · 第四部分 数量关系 第七章 利润问题 P194-196',
+  'DAY 21 · 第四部分 数量关系 第八章 容斥问题 P197-202',
+  'DAY 22 · 第五部分 判断推理 第一章 图形推理 平面图形与立体图形 P203-218',
+  'DAY 23 · 第五部分 判断推理 第二章 定义判断 P219-228',
+  'DAY 24 · 第五部分 判断推理 第三章 类比推理 P229-240',
+  'DAY 25 · 第五部分 判断推理 第四章 逻辑判断 形式逻辑、朴素逻辑、可能性推理 P241-273',
+  'DAY 26 · 第六部分 资料分析 第一章 基本概念及高频考点 增长与倍数 P274-286',
+  'DAY 27 · 第六部分 资料分析 第一章 基本概念及高频考点 比重、平均数、增长 P287-310',
+  'DAY 28 · 第六部分 资料分析 第二章 计算及比较方法 P311-320',
+  'DAY 29 · 第六部分 资料分析 第三章 材料类型及阅读 文字与表格材料 P321-326',
+  'DAY 30 · 第六部分 资料分析 第三章 材料类型及阅读 图形类材料 P327-330'
+];
+const T = (s, t, m, tag) => ({s:s, t:t, m:m, tag:tag||''});
+
+/* ============ 关键节点 ============ */
+const NODES = [
+  {d:'2028-10-16', k:'预计', t:'2029 年度国考公告与职位表发布，核对报考条件'},
+  {d:'2028-10-20', k:'预计', t:'网上报名：填报职位并提交，留意报名截止时间'},
+  {d:'2028-10-24', k:'预计', t:'报名确认与缴费'},
+  {d:'2028-11-16', k:'预计', t:'打印准考证，确认考点与考试时段'},
+  {d:'2028-11-24', k:'预计', t:'公安机关人民警察职位专业科目笔试，下午 14:00-16:00'},
+  {d:'2028-11-25', k:'预计', t:'公共科目笔试：上午行政职业能力测验，下午申论'}
+];
+
+/* ============ 阶段定义 ============ */
+function planP1(c){
+  const B=bookBlock(c.weekInPhase), S=slBlock(c.weekInPhase), G=ga(c.wi);
+  const wip = c.weekInPhase;
+  const course = wip <= 14;
+  const lecTxt = '学习：系统课 第 {L:课} 节 · {K}，看课';
+  const lecs = (n) => { const r = []; for(let i=0;i<n;i++) r.push(T('行测', lecTxt, 90)); return r; };
+  const bi = diffDays(CFG.start, c.ds) + 1;
+  const bookTasks = bi <= 30
+    ? [T('行测', '学习：辅导用书 ' + BOOK_DAYS[bi - 1] + '，看知识点并做书上例题', 90)]
+    : [T('行测', '练习：粉笔题库 · 行测专项 20 题，限时完成', 30)];
+  const bookDone = bi > 30;
+  const modName = B.part.replace(/^第[一二三四五六]部分\s*/, '');
+  const tiku = T('行测', '练习：粉笔题库 · ' + modName + ' 20 题，限时完成并记录正确率', 30);
+  const zt = T('申论', '积累：字帖 1 页', 20);
+  const addCommon = (out) => { for(const t of bookTasks) out.push(t); if(!bookDone) out.push(tiku); out.push(zt); return out; };
+  switch(c.wd){
+    case 0: {
+      const out = course ? lecs(1) : [];
+      addCommon(out);
+      out.push(T('常识', '积累：常识与时政 10 分钟，用碎片时间', 10));
+      return out;
+    }
+    case 1: {
+      const out = course ? lecs(1) : [];
+      addCommon(out);
+      out.push(T('申论', '练习：'+S.n+' 小题 2 道，写完逐句比对参考答案', 70));
+      return out;
+    }
+    case 2: {
+      const out = course ? lecs(1) : [];
+      addCommon(out);
+      if(GONGAN_ENABLED) out.push(T('公安', '学习：'+G.n+'，背诵并默写 10 条要点', 70));
+      return out;
+    }
+    case 3: {
+      const out = course ? lecs(1) : [];
+      addCommon(out);
+      if(!bookDone) out.push(T('行测', '练习：辅导用书当天例题重做，错题记入错题本', 30));
+      return out;
+    }
+    case 4: {
+      const out = course ? lecs(1) : [];
+      addCommon(out);
+      out.push(T('申论', '练习：'+S.n+' 小题 2 道，限时 60 分钟', 60));
+      return out;
+    }
+    case 5: {
+      const out = course ? lecs(1) : [];
+      addCommon(out);
+      if(GONGAN_ENABLED) out.push(T('公安', '学习：'+G.n+'，背诵并默写 10 条要点', 70));
+      return out;
+    }
+    case 6: {
+      const out = course ? lecs(1) : [];
+      addCommon(out);
+      out.push(T('自检', '自检：每周自检，填写完成率与正确率', 40));
+      return out;
+    }
+  }
+  return [];
+}
+
+function planP2(c){
+  const K=km(c.wi), K2=km(c.wi+2), S=sl(c.wi), S2=sl(c.wi+3), G=ga(c.wi), G2=ga(c.wi+5);
+  switch(c.wd){
+    case 0: return [T('行测', '学习：系统课 '+K.n+' 强化 第 {L:'+K.n+'} 节', 80),
+                    T('行测', '练习：'+K.n+' 专项 60 题', 85),
+                    T('行测', '复盘：错题整理并标注错因', 30),
+                    T('常识', '积累：常识与时政 10 分钟，用碎片时间', 10)];
+    case 1: return [T('申论', '学习：系统课 申论 强化 第 {L:申论} 节', 80),
+                    T('申论', '练习：'+S.n+' 小题 1 道，逐句比对参考解析', 70),
+                    T('申论', '积累：字帖 1 页', 20)];
+    case 2: return [T('公安', '学习：公安专业科目教材或者网课 2 章', 80),
+                    T('公安', '练习：'+G.n+' 章节题 60 题', 70),
+                    T('公安', '复盘：法条与考点默写', 40)];
+    case 3: return [T('行测', '学习：行测教材 '+K.n+' 章节与例题重做', 60),
+                    T('行测', '练习：'+K.n+' 专项 70 题', 100),
+                    T('常识', '积累：常识与时政 10 分钟', 10)];
+    case 4: return [T('申论', '学习：系统课 申论 第 {L:申论} 节，讲义复习与答题结构整理', 45),
+                    T('申论', '练习：'+S2.n+' 小题 1 道', 70),
+                    T('申论', '积累：字帖 1 页', 20),
+                    T('公安', '复盘：公安法条默写', 40)];
+    case 5: return [T('行测', '练习：'+K.n+' 模块限时训练 90 题', 140),
+                    T('公安', '练习：'+G2.n+' 章节题 70 题', 95),
+                    T('行测', '复盘：错题整理并回填考点', 60),
+                    T('常识', '积累：常识与时政专题 25 分钟', 25)];
+    case 6: return [T('申论', '练习：大作文 1 篇，限时 90 分钟', 150),
+                    T('申论', '复盘：范文比对与修改', 90),
+                    T('申论', '积累：字帖 1 页', 20),
+                    T('自检', '自检：每周自检，填写完成率与正确率', 40)];
+  }
+  return [];
+}
+
+function planP3(c){
+  const N=c.weekInPhase, G=ga(c.wi);
+  const mk = isLastSaturdayOfMonth(c.ds);
+  switch(c.wd){
+    case 0: return [T('行测', '学习：历年真题考点分布梳理', 40),
+                    T('行测', '练习：《行测历年真题汇编》第 '+N+' 套，按模块训练 80 题', 105),
+                    T('行测', '复盘：真题错题归档', 30)];
+    case 1: return [T('申论', '学习：申论真题题干与材料结构分析', 40),
+                    T('申论', '练习：申论真题小题部分限时完成', 85),
+                    T('申论', '积累：字帖 1 页', 20),
+                    T('申论', '复盘：对照解析修改并归纳结构', 30)];
+    case 2: return [T('公安', '学习：'+G.n+' 法条与考点补充', 55),
+                    T('公安', '练习：公安专业科目真题 1 套', 90),
+                    T('公安', '复盘：法条默写', 30)];
+    case 3: return [T('行测', '学习：错题对应方法回顾', 40),
+                    T('行测', '练习：真题错题重做 60 题', 95),
+                    T('行测', '练习：资料分析速算 20 题', 40)];
+    case 4: return [T('申论', '练习：大作文 1 篇，限时 70 分钟', 120),
+                    T('申论', '复盘：批改意见归纳成条目', 40)];
+    case 5: return mk
+      ? [T('模考', '练习：粉笔模考大赛 行测整卷 1 套，120 分钟', 120),
+         T('模考', '练习：粉笔模考大赛 申论整卷 1 套，180 分钟', 180)]
+      : [T('行测', '练习：限时整卷 1 套，取自真题汇编或者电子试题', 120),
+         T('行测', '复盘：整卷精析与模块正确率统计', 95),
+         T('行测', '学习：速算或者常识补漏', 40)];
+    case 6: return mk
+      ? [T('模考', '复盘：粉笔模考大赛 解析课，整理错题', 120),
+         T('自检', '自检：每周自检，记录正确率与用时', 40)]
+      : [T('公安', '练习：'+G.n+' 真题 1 套 或者专项 60 题', 90),
+         T('申论', '练习：小题 1 道，限时完成', 70),
+         T('行测', '复盘：本周错题重做', 60),
+         T('自检', '自检：每周自检，记录正确率与用时', 40)];
+  }
+  return [];
+}
+
+function planP4(c){
+  const N=c.weekInPhase, G=ga(c.wi), S=sl(c.wi);
+  const mk = (c.wi % 2 === 0);
+  switch(c.wd){
+    case 0: return [T('行测', '学习：高频考点与公式回顾', 40),
+                    T('行测', '练习：《行测历年真题汇编》第二轮 第 '+N+' 套', 110),
+                    T('行测', '复盘：错题回炉 30 题', 30)];
+    case 1: return [T('申论', '学习：'+S.n+' 热点素材整理', 45),
+                    T('申论', '练习：申论真题第二轮 小题部分限时完成', 85),
+                    T('申论', '复盘：答案比对与结构修正', 20)];
+    case 2: return [T('公安', '学习：'+G.n+' 高频考点与法条速记', 80),
+                    T('公安', '练习：公安专业科目专项 60 题', 60)];
+    case 3: return [T('行测', '学习：错题对应方法回顾', 40),
+                    T('行测', '练习：真题错题重做 60 题', 95),
+                    T('行测', '复盘：错因分类', 20)];
+    case 4: return [T('申论', '练习：大作文 1 篇，限时 70 分钟', 120),
+                    T('申论', '复盘：范文与批改意见回顾', 40)];
+    case 5: return mk
+      ? [T('模考', '练习：粉笔模考大赛 国考场 行测整卷，120 分钟', 120),
+         T('模考', '练习：粉笔模考大赛 国考场 申论整卷，180 分钟', 180)]
+      : [T('行测', '练习：限时整卷 1 套，120 分钟', 120),
+         T('行测', '复盘：整卷精析与错题归档', 90),
+         T('公安', '练习：公安专业科目真题 1 套', 80)];
+    case 6: return [T('模考', '复盘：模考解析课或者真题逐题分析', 110),
+                    T('常识', '学习：时政专题 1 个', 45),
+                    T('自检', '自检：每周自检', 40)];
+  }
+  return [];
+}
+
+function planP5(c){
+  const H=hce(c.wi), S=sl(c.wi), G=ga(c.wi);
+  switch(c.wd){
+    case 0: return [T('行测', '学习：'+H.n+' 错题对应考点回顾', 25),
+                    T('行测', '练习：错题回炉 30 题', 45)];
+    case 1: return [];
+    case 2: return [T('公安', '学习：'+G.n+' 法条速记', 30),
+                    T('公安', '练习：'+G.n+' 专项 30 题', 45)];
+    case 3: return [];
+    case 4: return [T('申论', '学习：'+S.n+' 答题要点回顾', 25),
+                    T('申论', '练习：小题 1 道，限时完成', 45)];
+    case 5: return [T('行测', '练习：限时整卷 1 套，120 分钟', 120),
+                    T('行测', '复盘：整卷精析与错题归档', 75)];
+    case 6: return [T('申论', '练习：大作文 1 篇，限时 60 分钟', 110),
+                    T('申论', '积累：字帖 1 页', 20),
+                    T('自检', '自检：每周自检，核对遗忘点', 40)];
+  }
+  return [];
+}
+
+function planP6(c){
+  const H=hce(c.wi), G=ga(c.wi);
+  switch(c.wd){
+    case 0: return [T('行测', '学习：公式与速算回顾', 40),
+                    T('行测', '练习：'+H.n+' 错题回炉 40 题', 70)];
+    case 1: return [T('申论', '学习：热点素材更新与默写', 40),
+                    T('申论', '练习：大作文 1 篇，限时 55 分钟', 100)];
+    case 2: return [T('公安', '学习：'+G.n+' 法条与高频考点速记', 70),
+                    T('公安', '练习：'+G.n+' 专项 40 题', 50)];
+    case 3: return [T('行测', '练习：限时整卷 1 套，取自真题汇编或者电子试题', 120),
+                    T('行测', '复盘：整卷精析', 60)];
+    case 4: return [T('常识', '学习：时政要点回顾', 40),
+                    T('申论', '练习：小题 1 道，限时完成', 55)];
+    case 5: return [T('模考', '练习：全真模拟冲刺卷 行测 120 分钟', 120),
+                    T('模考', '练习：全真模拟冲刺卷 申论 180 分钟', 180)];
+    case 6: return [T('模考', '复盘：模考复盘与错题归档', 90),
+                    T('公安', '练习：公安专业科目整卷 1 套', 70),
+                    T('自检', '自检：每周自检', 40)];
+  }
+  return [];
+}
+
+const PHASES = [
+ {id:1, name:'系统学习期', from:'2026-10-05', to:'2027-01-31', color:'#3b7df6',
+  weeks:17,
+  goal:'行测按资料分析、判断推理、言语理解、数量关系的顺序分块推进，一块学完再进下一块；申论先攻小题，第 12 周开始写大作文提纲，第 15 周开始写整篇；公安专业科目完成第一轮。',
+  hours:'每天一节系统课加 20 题练习，周学时约 27 小时；课程与辅导用书走完一遍后不再重复，周学时约 14 小时',
+  note:'每天固定三件事：看系统课、学辅导用书对应部分、做对应练习。课程每节约 2 小时，按 1.5 倍速算约 90 分钟。辅导用书按书上的 DAY 编号推进 30 天走完一遍，之后不再重复，改成刷题与错题复盘。科学推理属于广东特色题型，国考行测不涉及，可以跳过。',
+  plan:planP1},
+ {id:2, name:'专项刷题期', from:'2027-02-01', to:'2027-07-25', color:'#16a34a',
+  weeks:25,
+  goal:'系统课的强化部分看完；行测分模块专项累计不少于 6000 题；申论五大题型各完成 15 道以上小题，大作文 12 篇以上；公安专业科目第二轮精读并完成法条背诵。',
+  hours:'平日 3 小时，周末 5 小时，周学时 25 至 26 小时，寒暑假可以提高到 30 小时',
+  note:'整份计划任务量最大的阶段，假期是提量的主要窗口。',
+  plan:planP2},
+ {id:3, name:'真题第一轮', from:'2027-07-26', to:'2027-12-26', color:'#e08a00',
+  weeks:22,
+  goal:'《行测历年真题汇编》7 套与电子试题完成第一轮并建立模块正确率曲线；申论真题每周 1 套；公安专业科目真题第一轮完成；每月 1 次全真模考。',
+  hours:'平日 3 小时，周末 5 小时，周学时 22 至 23 小时',
+  note:'模考用粉笔模考大赛的场次，考完接着看对应的解析课。',
+  plan:planP3},
+ {id:4, name:'真题二轮与收口', from:'2027-12-27', to:'2028-03-26', color:'#8b5cf6',
+  weeks:13,
+  goal:'真题第二轮完成，高频考点与错题本回炉，申论热点与范文成稿；每两周 1 次全真模考。',
+  hours:'平日 3 小时，周末 5 小时，周学时 21 至 22 小时',
+  note:'这一阶段结束时，知识、题库与错题工作应当基本做完。',
+  plan:planP4},
+ {id:5, name:'维持期', from:'2028-03-27', to:'2028-08-27', color:'#0ea5e9',
+  weeks:22,
+  goal:'每周固定训练量保持手感：行测整卷 1 套，申论小题 1 道加大作文 1 篇，公安专项 1 组，错题循环回顾。',
+  hours:'每周 9 至 10 小时，安排在周末与两个平日晚间',
+  note:'这一段对应研究生课程、实习与论文压力较大的时期，任务量降到维持水平。',
+  plan:planP5},
+ {id:6, name:'考前冲刺', from:'2028-08-28', to:'2028-11-26', color:'#e11d48',
+  weeks:13,
+  goal:'恢复强度，每周用全真模拟冲刺卷做 1 次模考，错题、法条与热点循环，10 月完成公告核对与报名相关事项。',
+  hours:'平日 2.5 至 3 小时，周末 5 小时，周学时 18 至 20 小时',
+  note:'主体任务已经在前面完成，这一段以模考和回顾为主，最后两周只看错题、法条与热点。',
+  plan:planP6}
+];
+
+/* ============ 日期工具 ============ */
+const p2 = n => (n < 10 ? '0' : '') + n;
+const d2s = d => d.getFullYear() + '-' + p2(d.getMonth()+1) + '-' + p2(d.getDate());
+function s2d(s){ const a = s.split('-').map(Number); return new Date(a[0], a[1]-1, a[2]); }
+function addDays(s, n){ const d = s2d(s); d.setDate(d.getDate()+n); return d2s(d); }
+function mondayOf(s){ const d = s2d(s); return addDays(s, -((d.getDay()+6)%7)); }
+function diffDays(a, b){ return Math.round((s2d(b) - s2d(a)) / 86400000); }
+function ym(s){ return s.slice(0,7); }
+function cnDate(s){ const d = s2d(s); return d.getFullYear()+'年'+(d.getMonth()+1)+'月'+d.getDate()+'日'; }
+function cnDateShort(s){ const d = s2d(s); return (d.getMonth()+1)+'月'+d.getDate()+'日'; }
+function weekdayName(s){ return '星期'+'一二三四五六日'[(s2d(s).getDay()+6)%7]; }
+function wdIndex(s){ return (s2d(s).getDay()+6)%7; }
+function ymLabel(k){ const a=k.split('-'); return a[0]+'年'+Number(a[1])+'月'; }
+function isLastSaturdayOfMonth(s){ return s.slice(0,7) !== addDays(s,7).slice(0,7); }
+function isLastDayOfMonth(s){ return addDays(s,1).slice(0,7) !== s.slice(0,7); }
+
+const BASE_WEEK = mondayOf(CFG.start);
+const weekIndexOf = s => Math.floor(diffDays(BASE_WEEK, mondayOf(s))/7);
+const phaseOf = s => { for(const p of PHASES){ if(s >= p.from && s <= p.to) return p; } return null; };
+const nodeOf = s => NODES.find(n => n.d === s) || null;
+
+/* ============ 任务生成 ============ */
+function finalWeekTasks(ds){
+  switch(ds){
+    case '2028-11-20': return [T('考前','错题本第二轮：行测错题重做 60 题',90),
+                               T('考前','申论热点与文章结构梳理',60)];
+    case '2028-11-21': return [T('考前','公安专业科目法条与考点速记',70),
+                               T('考前','申论大作文 1 篇，限时 55 分钟',90)];
+    case '2028-11-22': return [T('考前','行测半卷计时训练',60),
+                               T('考前','错题复盘',40)];
+    case '2028-11-23': return [T('考前','公安专业科目法条速记',60),
+                               T('考前','申论小题 1 道，限时完成',60)];
+    case '2028-11-24': return [T('考前','上午整理准考证、身份证与文具，确认考点路线与出发时间',30),
+                               T('笔试','下午 14:00-16:00 公安机关人民警察职位专业科目笔试',0)];
+    case '2028-11-25': return [T('笔试','上午 9:00-11:00 行政职业能力测验',0),
+                               T('笔试','下午 14:00-17:00 申论',0)];
+    case '2028-11-26': return [T('复盘','记录本次考试的答题情况、时间分配与失分点',60)];
+  }
+  return null;
+}
+
+function rawTasks(ds){
+  if(ds < CFG.start || ds > CFG.end) return [];
+  const fw = finalWeekTasks(ds);
+  if(fw) return fw.slice();
+  const ph = phaseOf(ds);
+  if(!ph) return [];
+  const wi = weekIndexOf(ds);
+  const weekInPhase = Math.floor(diffDays(ph.from, mondayOf(ds))/7) + 1;
+  const c = {ds:ds, ph:ph, wi:wi, wd:wdIndex(ds), weekInPhase:weekInPhase};
+  const out = ph.plan(c).slice();
+  const node = nodeOf(ds);
+  if(node) out.unshift(T('节点', node.t, 30, node.k));
+  if(isLastDayOfMonth(ds) && !out.some(function(t){ return String(t.t).indexOf('月度自检') >= 0; })){
+    out.push(T('自检', '自检：月度自检，填写本月成绩与完成率', 30));
+  }
+  if(ds < '2028-11-20' && !out.some(function(t){ return String(t.t).indexOf('字帖') >= 0; })){
+    out.push(T('申论', '积累：字帖 1 页', 20));
+  }
+  if(out.length === 0) out.push({s:'调整', t:'休息，或者处理课程、论文与实习事务', m:0, rest:true});
+  return out;
+}
+
+const LEC_MAP = (function(){
+  const counter = {}, map = {};
+  const re = /\{L:([^}]+)\}/g;
+  let d = CFG.start;
+  while(d <= CFG.end){
+    const list = rawTasks(d);
+    const per = {};
+    for(let i=0;i<list.length;i++){
+      const s = String(list[i].t);
+      re.lastIndex = 0;
+      let m;
+      while((m = re.exec(s))){
+        const key = m[1];
+        counter[key] = (counter[key] || 0) + 1;
+        (per[key] = per[key] || []).push(counter[key]);
+      }
+    }
+    map[d] = per;
+    d = addDays(d, 1);
+  }
+  return map;
+})();
+
+function tasksFor(ds){
+  const list = rawTasks(ds);
+  const per = LEC_MAP[ds] || {};
+  const used = {};
+  const out = list.map(function(t){
+    const s = String(t.t);
+    if(s.indexOf('{L:') < 0) return t;
+    const o = Object.assign({}, t);
+    let n = 0;
+    o.t = s.replace(/\{L:([^}]+)\}/g, function(_, key){
+      used[key] = (used[key] || 0) + 1;
+      const nums = per[key] || [];
+      n = nums[used[key] - 1] || 0;
+      return String(n);
+    });
+    if(o.t.indexOf('{K}') >= 0){
+      const L = COURSE_LESSONS[n - 1];
+      o.t = o.t.replace('{K}', L ? L[1] : '超出课程范围');
+    }
+    return o;
+  });
+  const kept = out.filter(function(t){ return String(t.t).indexOf('超出课程范围') < 0; });
+  const rank = {'行测':0,'申论':1,'公安':2,'常识':3,'模考':4,'自检':5,'复盘':6,'考前':7,'笔试':8,'节点':9,'调整':10};
+  return kept.map(function(t,i){ return {t:t, i:i}; })
+    .sort(function(a,b){
+      const ra = rank[a.t.s] === undefined ? 20 : rank[a.t.s];
+      const rb = rank[b.t.s] === undefined ? 20 : rank[b.t.s];
+      return ra - rb || a.i - b.i;
+    })
+    .map(function(x){ return x.t; });
+}
+
+function weekFocus(ds){
+  const ph = phaseOf(ds);
+  if(!ph) return '';
+  if(ds >= '2028-11-20') return '最后一周 · 错题与法条回顾';
+  const wi = weekIndexOf(ds);
+  const wip = Math.floor(diffDays(ph.from, mondayOf(ds))/7)+1;
+  if(ph.id === 1){
+    const B = bookBlock(wip);
+    return '行测 · '+B.part+' '+B.day+'　申论 · '+slBlock(wip).n+'　公安 · '+ga(wi).n;
+  }
+  if(ph.id === 3) return '真题第一轮 第 '+wip+' 套　行测 · '+km(wi).n+'　公安 · '+ga(wi).n;
+  if(ph.id === 4) return '真题第二轮 第 '+wip+' 套　申论 · '+sl(wi).n;
+  if(ph.id === 5) return '维持训练　公安 · '+ga(wi).n;
+  if(ph.id === 6) return '考前冲刺　行测 · '+hce(wi).n+'　公安 · '+ga(wi).n;
+  return '行测 · '+km(wi).n+'　申论 · '+sl(wi).n+'　公安 · '+ga(wi).n;
+}
+
+/* ============ 存储 ============ */
+const KEY = 'gk2029.calendar.v1';
+let DB = {done:{}, week:{}, month:{}};
+let storageOK = true;
+try{
+  const raw = localStorage.getItem(KEY);
+  if(raw) DB = Object.assign(DB, JSON.parse(raw));
+}catch(e){ storageOK = false; }
+function save(){
+  if(!storageOK) return;
+  try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
+  catch(e){ storageOK = false; renderFooter(); }
+}
+function doneMap(ds){ return DB.done[ds] || (DB.done[ds] = {}); }
+function isDone(ds, i){ return !!doneMap(ds)[i]; }
+function toggleDone(ds, i){
+  const m = doneMap(ds);
+  if(m[i]) delete m[i]; else m[i] = true;
+  save();
+}
+function dayProgress(ds){
+  const list = tasksFor(ds);
+  let total = 0, n = 0;
+  for(let i=0;i<list.length;i++){
+    if(list[i].rest) continue;
+    total++;
+    if(isDone(ds,i)) n++;
+  }
+  return {total:total, done:n};
+}
+function progressText(p){
+  return p.total ? ('完成 '+p.done+' / '+p.total+' 项') : '本日不安排训练，用于处理课程与论文事务';
+}
+
+/* ============ 状态 ============ */
+const todayKey = (function(){
+  const t = d2s(new Date());
+  if(t < CFG.start) return CFG.start;
+  if(t > CFG.end) return CFG.end;
+  return t;
+})();
+const state = {
+  view:'overview',
+  selected: todayKey,
+  calMonth: ym(todayKey),
+  weekKey: mondayOf(todayKey),
+  monthKey: ym(todayKey),
+  miniMonth: ym(todayKey)
+};
+
+/* ============ 计算 ============ */
+function allDays(){
+  const out = [];
+  let d = CFG.start;
+  while(d <= CFG.end){ out.push(d); d = addDays(d,1); }
+  return out;
+}
+const ALL_DAYS = allDays();
+function totalTasks(){
+  let n = 0;
+  for(const d of ALL_DAYS) n += tasksFor(d).length;
+  return n;
+}
+function totalDone(){
+  let n = 0;
+  for(const d of ALL_DAYS) n += dayProgress(d).done;
+  return n;
+}
+function weekDaysOf(weekKey){
+  const out = [];
+  for(let i=0;i<7;i++){ const d = addDays(weekKey,i); if(d>=CFG.start && d<=CFG.end) out.push(d); }
+  return out;
+}
+function weekProgress(weekKey){
+  let total = 0, done = 0;
+  for(const d of weekDaysOf(weekKey)){ const p = dayProgress(d); total += p.total; done += p.done; }
+  return {total:total, done:done};
+}
+function monthProgress(k){
+  let total = 0, done = 0;
+  for(const d of ALL_DAYS){ if(ym(d) !== k) continue; const p = dayProgress(d); total += p.total; done += p.done; }
+  return {total:total, done:done};
+}
+function dday(){
+  const t = d2s(new Date());
+  return diffDays(t, CFG.exam);
+}
+const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[m]));
+
+/* ============ 渲染：通用 ============ */
+function renderFooter(){
+  const el = document.getElementById('storage');
+  el.textContent = storageOK ? '' : '当前打开方式无法保存打卡记录，用浏览器直接打开本文件可以正常保存。';
+}
+
+function taskRow(ds, i, task){
+  const d = isDone(ds,i) ? ' done' : '';
+  const color = SUBJECT_COLOR[task.s] || '#64748b';
+  const mins = task.m > 0 ? '　约 '+task.m+' 分钟' : '';
+  const tag = task.tag ? '　'+task.tag : '';
+  const url = task.url || linkFor(task.t) || (task.s === '公安' ? gonganLink(task.t) : '');
+  const title = url
+    ? '<a class="tlink" href="'+url+'" target="_blank" rel="noopener">'+esc(task.t)+'</a>'
+    : esc(task.t);
+  const box = task.rest ? '' :
+    '<input class="ck" type="checkbox" data-date="'+ds+'" data-idx="'+i+'" '+(d?'checked':'')+' />';
+  return '<li class="'+(d+' '+(task.rest?'rest':'')).trim()+'" data-task="'+i+'">'+
+    box+
+    '<div><div class="tt"><span class="sbadge" style="background:'+color+'">'+esc(task.s)+'</span> '+title+'</div>'+
+    '<div class="meta">'+esc(task.s)+tag+mins+'</div></div></li>';
+}
+
+function dayPanel(ds){
+  const list = tasksFor(ds);
+  const ph = phaseOf(ds);
+  const p = dayProgress(ds);
+  const node = nodeOf(ds);
+  let head = '<div class="ctitle"><span>'+cnDate(ds)+'　'+weekdayName(ds)+'</span>'+
+    (ph ? '<span class="badge">阶段 '+ph.id+' · '+ph.name+'</span>' : '<span class="badge grey">非计划期</span>')+'</div>';
+  let body = '';
+  if(list.length === 0){
+    body = '<div class="muted small">该日不在学习计划区间内。</div>';
+  }else{
+    body = '<div class="hlbox">本周重点：'+esc(weekFocus(ds))+'</div>'+
+      '<ul class="tasks">'+list.map((t,i)=>taskRow(ds,i,t)).join('')+'</ul>'+
+      '<div class="small muted" style="margin-top:6px">'+progressText(p)+'</div>';
+  }
+  return '<div class="card">'+head+body+'</div>';
+}
+
+/* ============ 渲染：总览 ============ */
+function renderOverview(){
+  const d = dday();
+  const tp = totalTasks(), tdn = totalDone();
+  const wp = weekProgress(mondayOf(todayKey));
+  const ph = phaseOf(todayKey);
+  const rate = tp ? Math.round(tdn/tp*100) : 0;
+  const wrate = wp.total ? Math.round(wp.done/wp.total*100) : 0;
+  const phList = PHASES.map(p=>{
+    const a = p.from < CFG.start ? CFG.start : p.from;
+    const b = p.to > CFG.end ? CFG.end : p.to;
+    let tot = 0, dn = 0;
+    for(const day of ALL_DAYS){ if(day>=a && day<=b){ const q = dayProgress(day); tot += q.total; dn += q.done; } }
+    const r = tot ? Math.round(dn/tot*100) : 0;
+    const cur = ph && ph.id === p.id ? ' <span class="badge">进行中</span>' : '';
+    return '<div style="margin-bottom:11px">'+
+      '<div class="small" style="display:flex;justify-content:space-between"><span>阶段 '+p.id+'　'+p.name+'　'+cnDate(a)+' 至 '+cnDate(p.to)+cur+'</span><span class="muted">'+dn+' / '+tot+'</span></div>'+
+      '<div class="bar" style="margin-top:4px"><i style="width:'+r+'%;background:'+p.color+'"></i></div></div>';
+  }).join('');
+
+  document.getElementById('view').innerHTML =
+    '<div class="ovgrid">'+
+      '<div>'+ miniCalCard() + progressCard() + countdownCard() +'</div>'+
+      '<div>'+
+        '<div class="statgrid">'+
+          '<div class="stat"><div class="k">距预计笔试</div><div class="v">'+d+'<small>天</small></div><div class="small muted">'+CFG.examText+'</div></div>'+
+          '<div class="stat"><div class="k">当前阶段</div><div class="v" style="font-size:18px">'+(ph?('阶段 '+ph.id+' '+ph.name):'非计划期')+'</div><div class="small muted">'+(ph?esc(ph.hours):'')+'</div></div>'+
+          '<div class="stat"><div class="k">总任务完成</div><div class="v">'+tdn+'<small>/ '+tp+' 项</small></div><div class="bar" style="margin-top:8px"><i style="width:'+rate+'%"></i></div></div>'+
+          '<div class="stat"><div class="k">本周完成率</div><div class="v">'+wrate+'<small>%</small></div><div class="small muted">本周 '+wp.done+' / '+wp.total+' 项</div></div>'+
+        '</div>'+
+        '<div class="card" style="margin-bottom:14px"><div class="ctitle"><span>今日任务</span><span class="small muted">'+cnDate(todayKey)+' '+weekdayName(todayKey)+'</span></div>'+
+          tasksBlock(todayKey)+
+        '</div>'+
+        '<div class="card"><div class="ctitle"><span>阶段进度</span><span class="small muted">共 112 周</span></div>'+phList+'</div>'+
+      '</div>'+
+    '</div>';
+}
+
+/* 迷你月历 */
+function miniCalCard(){
+  const k = state.miniMonth;
+  const first = k+'-01';
+  const startCell = mondayOf(first);
+  const offset = diffDays(startCell, first);
+  const dim = new Date(Number(k.slice(0,4)), Number(k.slice(5,7)), 0).getDate();
+  const rows = Math.ceil((offset + dim) / 7);
+  let cells = '';
+  const dow = ['日','一','二','三','四','五','六'];
+  for(const w of dow) cells += '<div class="mdow">'+w+'</div>';
+  for(let i=0;i<rows*7;i++){
+    const ds = addDays(startCell, i);
+    const inM = ym(ds) === k;
+    const inR = ds >= CFG.start && ds <= CFG.end;
+    const cls = ['mcell'];
+    if(!inM) cls.push('mout');
+    else if(inR) cls.push('mhas');
+    if(ds === state.selected) cls.push('msel');
+    if(ds === todayKey) cls.push('mtoday');
+    if(inM && inR && dayProgress(ds).done > 0) cls.push('mdone');
+    cells += '<div class="'+cls.join(' ')+'"'+(inM ? ' data-mdate="'+ds+'"' : '')+'>'+s2d(ds).getDate()+'</div>';
+  }
+  return '<div class="card" style="margin-bottom:14px">'+
+    '<div class="mhead"><span class="mym">'+ymLabel(k)+'</span>'+
+      '<button class="mnav expand" id="miniExpand" title="打开详细月历">⤢</button></div>'+
+    '<div class="mcal">'+cells+'</div>'+
+    '<div class="mfoot"><button class="mnav" id="miniPrev" title="上一月">‹</button>'+
+      '<button class="mnav" id="miniNext" title="下一月">›</button></div></div>';
+}
+
+/* 时间进度 */
+function progressCard(){
+  const now = new Date();
+  const y = now.getFullYear(), m = now.getMonth();
+  const dayOfYear = Math.floor((new Date(y,m,now.getDate()) - new Date(y,0,1))/86400000) + 1;
+  const daysInYear = ((y%4===0 && y%100!==0) || y%400===0) ? 366 : 365;
+  const daysInMonth = new Date(y, m+1, 0).getDate();
+  const wd = (now.getDay()+6)%7;
+  const rows = [
+    {l:'本年', p: dayOfYear/daysInYear*100, left: daysInYear - dayOfYear, u:'天'},
+    {l:'本月', p: now.getDate()/daysInMonth*100, left: daysInMonth - now.getDate(), u:'天'},
+    {l:'本周', p: (wd+1)/7*100, left: 6 - wd, u:'天'}
+  ];
+  return '<div class="card" style="margin-bottom:14px"><div class="ctitle"><span>时间进度</span></div>'+
+    rows.map(function(r){
+      return '<div class="prog"><div class="pt"><span class="pv">'+r.p.toFixed(1)+'%</span>'+
+        '<span class="pl">'+r.l+'还剩 '+r.left+' '+r.u+'</span></div>'+
+        '<div class="pb"><i style="width:'+Math.min(100,Math.max(0,r.p)).toFixed(1)+'%"></i></div></div>';
+    }).join('')+'</div>';
+}
+
+/* 距下一个节点 */
+function countdownCard(){
+  const list = [];
+  for(const n of NODES) list.push({d:n.d, t:n.t});
+  for(const p of PHASES){ if(p.from > todayKey) list.push({d:p.from, t:'进入阶段 '+p.id+' '+p.name}); }
+  list.push({d:CFG.exam, t:'预计笔试'});
+  list.sort(function(a,b){ return a.d < b.d ? -1 : 1; });
+  const next = list.find(function(x){ return x.d >= todayKey; }) || list[list.length-1];
+  const left = diffDays(todayKey, next.d);
+  return '<div class="card"><div class="ctitle"><span>下一个节点</span></div>'+
+    '<div class="cd"><div><div class="cdl">距离'+esc(next.t)+'</div>'+
+    '<div class="cdd">'+cnDate(next.d)+' '+weekdayName(next.d)+'</div></div>'+
+    '<div><span class="cdbig">'+left+'</span><span class="cdu">天</span></div></div></div>';
+}
+
+function tasksBlock(ds){
+  const list = tasksFor(ds);
+  if(!list.length) return '<div class="muted small">该日不在学习计划区间内。</div>';
+  const p = dayProgress(ds);
+  return '<div class="hlbox">本周重点：'+esc(weekFocus(ds))+'</div>'+
+    '<ul class="tasks">'+list.map((t,i)=>taskRow(ds,i,t)).join('')+'</ul>'+
+    '<div class="small muted" style="margin-top:6px">'+progressText(p)+'</div>';
+}
+
+/* ============ 渲染：日历 ============ */
+function renderCalendar(){
+  const k = state.calMonth;
+  const first = k+'-01';
+  const startCell = mondayOf(first);
+  const offset = diffDays(startCell, first);
+  const daysInMonth = new Date(Number(k.slice(0,4)), Number(k.slice(5,7)), 0).getDate();
+  const weekRows = Math.ceil((offset + daysInMonth) / 7);
+  let cells = '';
+  for(let i=0;i<weekRows*7;i++){
+    const ds = addDays(startCell,i);
+    const inMonth = ym(ds) === k;
+    const ph = phaseOf(ds);
+    const inRange = ds >= CFG.start && ds <= CFG.end;
+    const prog = inRange ? dayProgress(ds) : {total:0,done:0};
+    const subj = inRange ? Array.from(new Set(tasksFor(ds).map(t=>t.s))) : [];
+    const dots = subj.slice(0,5).map(s=>'<span class="dot" style="background:'+(SUBJECT_COLOR[s]||'#94a3b8')+'"></span>').join('');
+    const pct = prog.total ? Math.round(prog.done/prog.total*100) : 0;
+    const cls = ['cell'];
+    if(!inMonth || !inRange) cls.push('out');
+    if(ds === todayKey) cls.push('today');
+    if(ds === state.selected) cls.push('sel');
+    if(ds === CFG.exam) cls.push('exam');
+    const node = nodeOf(ds);
+    const strip = ph ? '<span class="phstrip" style="background:'+ph.color+'"></span>' : '';
+    const tag = ds === CFG.exam ? '<span class="tag" style="background:#e11d48">笔试</span>' : (node ? '<span class="tag" style="background:#0ea5e9">节点</span>' : '');
+    const attr = (inMonth && inRange) ? ' data-date="'+ds+'"' : '';
+    cells += '<div class="'+cls.join(' ')+'"'+attr+'>'+strip+
+      '<div class="dnum '+((s2d(ds).getDay()===0)?'sun':'')+'">'+s2d(ds).getDate()+'</div>'+
+      tag+
+      '<div class="dots">'+dots+'</div>'+
+      '<div class="cnt">'+(inRange ? (prog.total ? prog.total+' 项任务' : '休息') : '未开始')+'</div>'+
+      (node ? '<div class="note">'+esc(node.k)+'节点</div>' : '')+
+      (prog.total ? '<div class="cellbar"><i style="width:'+pct+'%"></i></div>' : '')+
+    '</div>';
+  }
+  const mp = monthProgress(k);
+  const mrate = mp.total ? Math.round(mp.done/mp.total*100) : 0;
+  document.getElementById('view').innerHTML =
+    '<div class="calwrap">'+
+      '<div class="card">'+
+        '<div class="calnav">'+
+          '<button class="btn" id="prevM">上一月</button>'+
+          '<span class="ym">'+ymLabel(k)+'</span>'+
+          '<button class="btn" id="nextM">下一月</button>'+
+          '<button class="btn" id="toToday">回到本周</button>'+
+          '<button class="btn" id="toExam">考试周</button>'+
+          '<button class="mnav" id="calCollapse" title="收起详细月历，回到总览">⤡</button>'+
+          '<span class="small muted" style="margin-left:auto">本月完成 '+mp.done+' / '+mp.total+' 项　'+mrate+'%</span>'+
+        '</div>'+
+        '<div class="dow"><span>周一</span><span>周二</span><span>周三</span><span>周四</span><span>周五</span><span>周六</span><span>周日</span></div>'+
+        '<div class="grid">'+cells+'</div>'+
+      '</div>'+
+      '<div id="daypanel">'+dayPanel(state.selected)+'</div>'+
+    '</div>';
+}
+
+function weekMini(weekKey){
+  const cells = [];
+  for(let i=0;i<7;i++){
+    const d = addDays(weekKey, i);
+    const inRange = d >= CFG.start && d <= CFG.end;
+    const list = inRange ? tasksFor(d) : [];
+    const p = dayProgress(d);
+    const cls = ['wcell'];
+    if(d === todayKey) cls.push('wtoday');
+    if(list.length === 0) cls.push('wempty');
+    cells.push('<div class="'+cls.join(' ')+'">'+
+      '<div class="whead"><span class="wd">'+weekdayName(d)+'</span><span class="wdate">'+cnDateShort(d)+'</span></div>'+
+      (p.total ? '<div class="wprog"><i style="width:'+Math.round(p.done/p.total*100)+'%"></i></div>' : '')+
+      '<div class="wt">'+(list.length
+        ? list.map(t=>'<div class="witem"><span class="wdot" style="background:'+(SUBJECT_COLOR[t.s]||'#94a3b8')+'"></span><span>'+esc(t.t)+'</span></div>').join('')
+        : '<span class="muted small">无安排</span>')+'</div>'+
+      '</div>');
+  }
+  return '<div class="weekmini">'+cells.join('')+'</div>';
+}
+
+/* ============ 渲染：每周自检 ============ */
+const WEEK_ITEMS = [
+  '行测：本周专项与整卷任务按计划完成，错题已重做',
+  '申论：本周小题或者大作文已完成，参考解析意见已归纳',
+  '公安：本周章节题与法条默写已完成',
+  '常识与时政：本周专题积累已完成',
+  '错题本：本周新增错题已分类并标注错因',
+  '未完成任务已安排到具体日期补做',
+  '下周任务量已根据本周完成情况调整'
+];
+const WEEK_NUMS = [
+  {k:'rate',  label:'本周计划完成率', unit:'%'},
+  {k:'hours', label:'本周总学时',     unit:'小时'},
+  {k:'acc',   label:'行测专项正确率', unit:'%'},
+  {k:'sl1',   label:'申论小题完成',   unit:'道'},
+  {k:'sl2',   label:'申论大作文完成', unit:'篇'},
+  {k:'ga',    label:'公安章节题完成', unit:'题'}
+];
+const WEEK_SCORES = [
+  {k:'acc', label:'模考行测得分',       unit:'分'},
+  {k:'sl1', label:'申论得分',           unit:'分'},
+  {k:'sl2', label:'公安专业科目得分',   unit:'分'},
+  {k:'ga',  label:'错题本新增条数',     unit:'条'}
+];
+
+/* 自动统计 */
+function rangeStats(days){
+  let total=0, done=0, doneMins=0, allMins=0, courseDone=0, ztDays=0, bookMax=0, mkDays=0;
+  const subj = {};
+  for(const d of days){
+    const list = tasksFor(d);
+    let zt = false, mk = false;
+    list.forEach(function(t,i){
+      if(t.rest) return;
+      total++; allMins += t.m;
+      subj[t.s] = subj[t.s] || {total:0, done:0};
+      subj[t.s].total++;
+      if(!isDone(d,i)) return;
+      done++; doneMins += t.m; subj[t.s].done++;
+      const s = String(t.t);
+      if(s.indexOf('系统课 第') >= 0) courseDone++;
+      if(s.indexOf('辅导用书') >= 0){ const m = /DAY\s*(\d+)/.exec(s); if(m) bookMax = Math.max(bookMax, Number(m[1])); }
+      if(s.indexOf('字帖') >= 0) zt = true;
+      if(s.indexOf('模考') >= 0) mk = true;
+    });
+    if(zt) ztDays++;
+    if(mk) mkDays++;
+  }
+  return {total:total, done:done, rate: total ? Math.round(done/total*100) : 0, doneMins:doneMins, allMins:allMins,
+          courseDone:courseDone, ztDays:ztDays, bookMax:bookMax, mkDays:mkDays, subj:subj};
+}
+function hm(min){
+  const h = Math.floor(min/60), m = min % 60;
+  return h ? (h + ' 小时 ' + (m ? m + ' 分' : '整')) : (m + ' 分钟');
+}
+function subjBars(subj){
+  const order = ['行测','申论','公安','常识','模考','自检'];
+  return order.filter(function(k){ return subj[k]; }).map(function(k){
+    const s = subj[k], r = s.total ? Math.round(s.done/s.total*100) : 0;
+    return '<div class="prog"><div class="pt"><span class="pv">'+r+'%</span>'+
+      '<span class="pl">'+k+' '+s.done+' / '+s.total+' 项</span></div>'+
+      '<div class="pb"><i style="width:'+r+'%"></i></div></div>';
+  }).join('');
+}
+function wRec(wk){ return DB.week[wk] || (DB.week[wk] = {checks:{}, nums:{}, text:''}); }
+function mRec(mk){ return DB.month[mk] || (DB.month[mk] = {checks:{}, nums:{}, text:''}); }
+
+function renderWeek(){
+  const wk = state.weekKey;
+  const rec = wRec(wk);
+  const ph = phaseOf(wk);
+  const days = weekDaysOf(wk);
+  const st = rangeStats(days);
+  document.getElementById('view').innerHTML =
+    '<div class="card">'+
+      '<div class="weeksel">'+
+        '<button class="btn" id="prevW">上一周</button>'+
+        '<span class="bignum">'+cnDate(days[0] || wk)+' 至 '+cnDate(days[days.length-1] || addDays(wk,6))+'</span>'+
+        '<button class="btn" id="nextW">下一周</button>'+
+        '<button class="btn" id="curW">本周</button>'+
+        '<span class="badge">'+(ph?('阶段 '+ph.id+' · '+ph.name):'非计划期')+'</span>'+
+      '</div>'+
+      '<div class="kpirow">'+
+        '<div class="kpibox"><div class="k">任务完成</div><div class="v">'+st.done+' / '+st.total+' 项</div></div>'+
+        '<div class="kpibox"><div class="k">完成率</div><div class="v">'+st.rate+'%</div></div>'+
+        '<div class="kpibox"><div class="k">实际学时</div><div class="v">'+hm(st.doneMins)+'</div></div>'+
+        '<div class="kpibox" style="flex:1;min-width:240px"><div class="k">本周重点</div><div class="v" style="font-size:13.5px">'+esc(weekFocus(wk))+'</div></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="card"><div class="ctitle"><span>本周汇总</span><span class="small muted">按打卡记录自动统计</span></div>'+
+      '<div class="hlbox">本周共 '+st.total+' 项，完成 '+st.done+' 项，完成率 '+st.rate+'%，实际学时 '+hm(st.doneMins)+'。系统课看完 '+st.courseDone+' 节，辅导用书推进到 DAY '+(st.bookMax||'—')+'，字帖 '+st.ztDays+' 天。</div>'+
+      subjBars(st.subj)+
+    '</div>'+
+    '<div class="card"><div class="ctitle"><span>本周每日任务</span></div>'+weekMini(wk)+'</div>'+
+    '<div class="card"><div class="ctitle"><span>每周自检清单</span><span class="small muted">勾选后自动保存</span></div>'+
+      '<ul class="checklist">'+WEEK_ITEMS.map((it,i)=>
+        '<li><input class="ck wchk" type="checkbox" data-i="'+i+'" '+(rec.checks[i]?'checked':'')+' /><div>'+esc(it)+'</div></li>').join('')+
+      '</ul>'+
+    '</div>'+
+    '<div class="card"><div class="ctitle"><span>本周成绩与备注</span><span class="small muted">选填，只有模考后需要记录</span></div>'+
+      '<table class="numtable"><thead><tr><th>项目</th><th>数值</th><th>单位</th></tr></thead><tbody>'+
+      WEEK_SCORES.map(n=>'<tr><td>'+esc(n.label)+'</td><td><input class="wnum" data-k="'+n.k+'" value="'+esc(rec.nums[n.k]||'')+'" /></td><td class="muted">'+esc(n.unit)+'</td></tr>').join('')+
+      '</tbody></table>'+
+    '</div>'+
+    '<div class="card"><div class="ctitle"><span>下周重点调整</span></div>'+
+      '<textarea class="wtext" placeholder="写出下周需要加强的模块与调整的任务量">'+esc(rec.text||'')+'</textarea>'+
+    '</div>';
+}
+
+/* ============ 渲染：每月自检 ============ */
+const MONTH_NUMS = [
+  {k:'a1', label:'行测限时套卷得分',   unit:'分'},
+  {k:'b1', label:'申论得分',           unit:'分'},
+  {k:'c1', label:'公安专业科目得分',   unit:'分'},
+  {k:'d3', label:'错题本新增条数',     unit:'条'}
+];
+const MONTH_SCORES = MONTH_NUMS;
+const MONTH_ITEMS = [
+  '对照阶段目标核对本月完成情况',
+  '本月模考与整卷成绩已记录并分析',
+  '错题本已按模块分类，重复错误已定位',
+  '下月任务量已根据本月完成率调整',
+  '本月未完成的任务已列出并安排补做'
+];
+
+function renderMonth(){
+  const k = state.monthKey;
+  const rec = mRec(k);
+  const ph = phaseOf(k+'-15');
+  const mDays = ALL_DAYS.filter(d=>ym(d)===k);
+  const st = rangeStats(mDays);
+  document.getElementById('view').innerHTML =
+    '<div class="card">'+
+      '<div class="weeksel">'+
+        '<button class="btn" id="prevMo">上一月</button>'+
+        '<span class="bignum">'+ymLabel(k)+'</span>'+
+        '<button class="btn" id="nextMo">下一月</button>'+
+        '<button class="btn" id="curMo">本月</button>'+
+        '<span class="badge">'+(ph?('阶段 '+ph.id+' · '+ph.name):'非计划期')+'</span>'+
+      '</div>'+
+      '<div class="kpirow">'+
+        '<div class="kpibox"><div class="k">任务完成</div><div class="v">'+st.done+' / '+st.total+' 项</div></div>'+
+        '<div class="kpibox"><div class="k">完成率</div><div class="v">'+st.rate+'%</div></div>'+
+        '<div class="kpibox"><div class="k">实际学时</div><div class="v">'+hm(st.doneMins)+'</div></div>'+
+        '<div class="kpibox"><div class="k">日均学时</div><div class="v">'+(mDays.length ? hm(Math.round(st.doneMins/mDays.length)) : '—')+'</div></div>'+
+        '<div class="kpibox"><div class="k">本月天数</div><div class="v">'+mDays.length+' 天</div></div>'+
+      '</div>'+
+    '</div>'+
+    '<div class="card"><div class="ctitle"><span>本月汇总</span><span class="small muted">按打卡记录自动统计</span></div>'+
+      '<div class="hlbox">本月共 '+st.total+' 项，完成 '+st.done+' 项，完成率 '+st.rate+'%，实际学时 '+hm(st.doneMins)+'。系统课看完 '+st.courseDone+' 节，辅导用书推进到 DAY '+(st.bookMax||'—')+'，字帖 '+st.ztDays+' 天，模考 '+st.mkDays+' 次。</div>'+
+      subjBars(st.subj)+
+    '</div>'+
+    '<div class="card"><div class="ctitle"><span>本月成绩记录</span><span class="small muted">选填，只有模考后需要记录</span></div>'+
+      '<table class="numtable"><thead><tr><th>项目</th><th>数值</th><th>单位</th></tr></thead><tbody>'+
+      MONTH_SCORES.map(n=>'<tr><td>'+esc(n.label)+'</td><td><input class="mnum" data-k="'+n.k+'" value="'+esc(rec.nums[n.k]||'')+'" /></td><td class="muted">'+esc(n.unit)+'</td></tr>').join('')+
+      '</tbody></table>'+
+    '</div>'+
+    '<div class="card"><div class="ctitle"><span>每月自检清单</span></div>'+
+      '<ul class="checklist">'+MONTH_ITEMS.map((it,i)=>
+        '<li><input class="ck mchk" type="checkbox" data-i="'+i+'" '+(rec.checks[i]?'checked':'')+' /><div>'+esc(it)+'</div></li>').join('')+
+      '</ul>'+
+    '</div>'+
+    '<div class="card"><div class="ctitle"><span>本月总结与下月安排</span></div>'+
+      '<textarea class="mtext" placeholder="写出本月未达标项、原因判断与下月的具体调整">'+esc(rec.text||'')+'</textarea>'+
+    '</div>';
+}
+
+/* ============ 渲染：阶段与节点 ============ */
+function renderPhase(){
+  const cards = PHASES.map(p=>{
+    const a = p.from < CFG.start ? CFG.start : p.from;
+    let tot=0, dn=0;
+    for(const d of ALL_DAYS){ if(d>=a && d<=p.to){ const q=dayProgress(d); tot+=q.total; dn+=q.done; } }
+    const r = tot ? Math.round(dn/tot*100) : 0;
+    return '<div class="phcard"><div class="phname"><span class="pdot" style="background:'+p.color+'"></span>阶段 '+p.id+'　'+p.name+'</div>'+
+      '<div class="phrange">'+cnDate(a)+' 至 '+cnDate(p.to)+'　共 '+p.weeks+' 周</div>'+
+      '<div class="phgoal">'+esc(p.goal)+'</div>'+
+      '<div class="phhours">'+esc(p.hours)+'</div>'+
+      '<div class="phhours">'+esc(p.note)+'</div>'+
+      '<div class="bar" style="margin-top:9px"><i style="width:'+r+'%;background:'+p.color+'"></i></div>'+
+      '<div class="small muted" style="margin-top:4px">已完成 '+dn+' / '+tot+' 项</div></div>';
+  }).join('');
+  const nodes = NODES.map(n=>'<li><div><b>'+cnDate(n.d)+'　'+weekdayName(n.d)+'</b>'+
+    '<div class="small muted">'+esc(n.t)+'　'+esc(n.k)+'</div></div></li>').join('');
+  document.getElementById('view').innerHTML =
+    '<div class="card"><div class="ctitle"><span>阶段划分</span><span class="small muted">起点 2026-10-09　终点 2028-11-26</span></div>'+
+      '<div class="phlist">'+cards+'</div></div>'+
+    '<div class="card"><div class="ctitle"><span>关键节点</span></div>'+
+      '<ul class="checklist">'+nodes+'</ul>'+
+      '<div class="small muted" style="margin-top:8px">2028 年 10 月之后的节点按历年规律推算，以当年《招考公告》与准考证为准。参照国家移民管理局 2026 年度招录公告，公安机关人民警察职位专业科目笔试在公共科目笔试前一天下午 14:00-16:00，公共科目笔试第二天上午 9:00-11:00 考行政职业能力测验，下午 14:00-17:00 考申论。报名、缴费、打印准考证的时间节点也按同一份公告的规律推算。公告原文见资料与课程页。</div>'+
+    '</div>';
+}
+
+/* ============ 渲染：资料与课程 ============ */
+const COURSES = [
+ {name:'2024广东:精品系统/强化班1期直播课回放', url:'https://www.fenbi.com/spa/pwa/episodes/564336',
+  use:'主学习线。理论精讲与强化，科目含言语理解与表达、判断推理、资料分析、数量关系、申论、科学推理。每天 1 节，配合行测教材同步推进。'},
+ {name:'2024国考模考大赛合集', url:'https://www.fenbi.com/spa/pwa/episodes/544609',
+  use:'模考与解析。真题第一轮开始使用，每次模考后接对应场次的解析课。'},
+ {name:'2023省考模考大赛合集', url:'https://www.fenbi.com/spa/pwa/episodes/549844',
+  use:'补充模考场次，用于加练与错题定位。'}
+];
+const BOOKS = [
+ {name:'《国家公务员录用考试辅导用书·行政职业能力测验》',
+  use:'方法学习与例题。配合系统课按模块逐章推进，听完课当天做对应章节例题与课后题。'},
+ {name:'《国家公务员录用考试辅导试卷·行政职业能力测验 历年真题汇编与全真模拟冲刺》',
+  use:'含 7 套历年真题汇编、1 套全真模拟冲刺、10 套电子试题、24 页考点速记手册、4 页答题卡。真题第一轮开始使用，考前用全真模拟冲刺卷。'},
+ {name:'《申论字帖天天练（修订版）时评范文》',
+  use:'每天 1 页，抄写时评范文并记下可用的表述，兼顾练字与素材积累。'}
+];
+const GAPS = [
+  '申论目前有系统课的申论部分与字帖，缺少申论真题与套卷，建议从粉笔题库或者纸质套卷补充。',
+  '公安专业科目先按官方大纲和法律法规数据库学，资料链接见下方。',
+  '课程按课程目录顺序推进，视频序号是日历里的第几节计数，按实际课程顺序听即可。'
+];
+/* 公安专业科目资料链接 */
+const GONGAN_OUTLINE = 'http://www.scs.gov.cn/';
+const GONGAN_OUTLINE_TEXT = 'https://www.suzhou.gov.cn/szsrmzf/gwyjsydwklxx/202510/5f26285fe67644bfb60ed86f7f54f788.shtml';
+const GONGAN_LAW = 'https://flk.npc.gov.cn/';
+const GONGAN_NOTES = 'https://www.offcn.com/gjgwy/2025/1015/117389.html';
+function gonganLink(text){
+  const s = String(text);
+  if(s.indexOf('法条') >= 0 || s.indexOf('默写') >= 0) return GONGAN_LAW;
+  return GONGAN_OUTLINE_TEXT;
+}
+const GONGAN_SOURCES = [
+  {name:'国家移民管理机构 2026 年度公务员国考招录公告', url:'https://www.nia.gov.cn/n741440/n741542/c1746858/content.html',
+   use:'国家移民管理局官网公告。写清各边检总站名额、报名与笔试时间、专业科目考试时段，是你报考单位的官方信息源。'},
+  {name:'国家移民管理机构招考平台', url:'https://rczk.nia.gov.cn',
+   use:'国家移民管理局自己的招考平台，公告、简章与后续通知会在这里同步。'},
+  {name:'国家公务员局官网', url:GONGAN_OUTLINE,
+   use:'考录公告与笔试大纲的发布源。公安专业科目大纲每年随公告一起发布，先在这里核对当年版本。'},
+  {name:'2026 年度公安机关人民警察职位专业科目笔试考试大纲（全文）', url:GONGAN_OUTLINE_TEXT,
+   use:'政府网站上的大纲全文，写清考试方式、考查内容与能力要求。公安那几天的学习任务就指到这里。'},
+  {name:'国家法律法规数据库', url:GONGAN_LAW,
+   use:'法条原文。任务里写「法条与考点背诵、默写 10 条」的，点开这里查人民警察法、治安管理处罚法、刑事诉讼法等条文。'},
+  {name:'大纲解读与题型分值分析', url:GONGAN_NOTES,
+   use:'第三方解读，用来看各模块的分值占比和高频考点，判断哪些章节要多花时间。'}
+];
+
+/* 系统课单节播放地址，课程 564336，已核对标题的课时 */
+const LESSON_PATH = 'https://www.fenbi.com/spa/pwa/class/tvclass/564336/';
+const COURSE_LESSONS = [
+  [7578107, '言语理解与表达 理论精讲1'],
+  [7578109, '言语理解与表达 理论精讲2'],
+  [7578111, '言语理解与表达 理论精讲3'],
+  [7578113, '言语理解与表达 理论精讲4'],
+  [7578115, '言语理解与表达 理论精讲5'],
+  [7578194, '资料分析 理论精讲1'],
+  [7578196, '资料分析 理论精讲2'],
+  [7578198, '资料分析 理论精讲3'],
+  [7578200, '资料分析 理论精讲4'],
+  [7578202, '资料分析 理论精讲5'],
+  [7578204, '数量关系 理论精讲1'],
+  [7578206, '数量关系 理论精讲2'],
+  [7578208, '数量关系 理论精讲3'],
+  [7578210, '数量关系 理论精讲4'],
+  [7578212, '数量关系 理论精讲5'],
+  [7578144, '判断推理 理论精讲1'],
+  [7578247, '判断推理 理论精讲2'],
+  [7578248, '判断推理 理论精讲3'],
+  [7578249, '判断推理 理论精讲4'],
+  [7578250, '判断推理 理论精讲5'],
+  [7578251, '判断推理 理论精讲6'],
+  [7578252, '判断推理 理论精讲7'],
+  [7578117, '言语理解与表达 强化练习1'],
+  [7578118, '言语理解与表达 强化练习2'],
+  [7578214, '资料分析 强化练习1'],
+  [7578215, '资料分析 强化练习2'],
+  [7578216, '数量关系 强化练习1'],
+  [7578217, '数量关系 强化练习2'],
+  [7578259, '判断推理 强化练习1'],
+  [7578260, '判断推理 强化练习2'],
+  [7578261, '判断推理 强化练习3'],
+  [7578119, '言语理解与表达 理论精讲1（第二套）'],
+  [7578121, '言语理解与表达 理论精讲2（第二套）'],
+  [7578123, '言语理解与表达 理论精讲3（第二套）'],
+  [7578125, '言语理解与表达 理论精讲4（第二套）'],
+  [7578127, '言语理解与表达 理论精讲5（第二套）'],
+  [7578120, '言语理解与表达 课后答疑1（第二套）'],
+  [7578122, '言语理解与表达 课后答疑2（第二套）'],
+  [7578124, '言语理解与表达 课后答疑3（第二套）'],
+  [7578126, '言语理解与表达 课后答疑4（第二套）'],
+  [7578128, '言语理解与表达 课后答疑5（第二套）'],
+  [7578129, '言语理解与表达 强化练习1（第二套）'],
+  [7578130, '言语理解与表达 强化练习2（第二套）'],
+  [7578108, '言语理解与表达 课后答疑1'],
+  [7578110, '言语理解与表达 课后答疑2'],
+  [7578112, '言语理解与表达 课后答疑3'],
+  [7578114, '言语理解与表达 课后答疑4'],
+  [7578116, '言语理解与表达 课后答疑5'],
+  [7578195, '资料分析 课后答疑1'],
+  [7578197, '资料分析 课后答疑2'],
+  [7578199, '资料分析 课后答疑3'],
+  [7578201, '资料分析 课后答疑4'],
+  [7578203, '资料分析 课后答疑5'],
+  [7578205, '数量关系 课后答疑1'],
+  [7578207, '数量关系 课后答疑2'],
+  [7578209, '数量关系 课后答疑3'],
+  [7578211, '数量关系 课后答疑4'],
+  [7578213, '数量关系 课后答疑5'],
+  [7578145, '判断推理 课后答疑1'],
+  [7578253, '判断推理 课后答疑2'],
+  [7578254, '判断推理 课后答疑3'],
+  [7578255, '判断推理 课后答疑4'],
+  [7578256, '判断推理 课后答疑5'],
+  [7578257, '判断推理 课后答疑6'],
+  [7578258, '判断推理 课后答疑7'],
+  [7578274, '判断推理 理论精讲1（第二套）'],
+  [7578275, '判断推理 理论精讲2（第二套）'],
+  [7578276, '判断推理 理论精讲3（第二套）'],
+  [7578277, '判断推理 理论精讲4（第二套）'],
+  [7578278, '判断推理 理论精讲5（第二套）'],
+  [7578279, '判断推理 理论精讲6（第二套）'],
+  [7578280, '判断推理 理论精讲7（第二套）'],
+  [7578281, '判断推理 课后答疑1（第二套）'],
+  [7578282, '判断推理 课后答疑2（第二套）'],
+  [7578283, '判断推理 课后答疑3（第二套）'],
+  [7578284, '判断推理 课后答疑4（第二套）'],
+  [7578285, '判断推理 课后答疑5（第二套）'],
+  [7578286, '判断推理 课后答疑6（第二套）'],
+  [7578287, '判断推理 课后答疑7（第二套）'],
+  [7578288, '判断推理 强化练习1（第二套）'],
+  [7578289, '判断推理 强化练习2（第二套）'],
+  [7578290, '判断推理 强化练习3（第二套）'],
+  [7578327, '资料分析 理论精讲1（第二套）'],
+  [7578329, '资料分析 理论精讲2（第二套）'],
+  [7578328, '资料分析 课后答疑1（第二套）'],
+  [7578330, '资料分析 课后答疑2（第二套）']
+];
+function lessonUrl(id){
+  return LESSON_PATH + id + '/25/0/564336/0?bizId=564336';
+}
+
+
+function linkFor(text){
+  const s = String(text);
+  const m = s.match(/系统课\s*第\s*(\d+)\s*节/);
+  if(m){
+    const L = COURSE_LESSONS[Number(m[1]) - 1];
+    return L ? lessonUrl(L[0]) : COURSES[0].url;
+  }
+  if(s.indexOf('系统课') >= 0) return COURSES[0].url;
+  if(s.indexOf('模考大赛') >= 0) return COURSES[1].url;
+  return '';
+}
+
+
+function renderMaterials(){
+  const cs = COURSES.map(function(x){
+    return '<div class="phcard"><div class="phname"><span class="pdot" style="background:#e11d48"></span>'+esc(x.name)+'</div>'+
+      '<div class="phrange"><a href="'+x.url+'" target="_blank" rel="noopener">'+x.url+'</a></div>'+
+      '<div class="phgoal">'+esc(x.use)+'</div></div>';
+  }).join('');
+  const bs = BOOKS.map(function(x){
+    return '<li><div><b>'+esc(x.name)+'</b><div class="small muted">'+esc(x.use)+'</div></div></li>';
+  }).join('');
+  const gs = GAPS.map(function(x){ return '<li><div>'+esc(x)+'</div></li>'; }).join('');
+  const gg = GONGAN_SOURCES.map(function(x){
+    return '<li><div><b><a class="tlink" href="'+x.url+'" target="_blank" rel="noopener">'+esc(x.name)+'</a></b>'+
+      '<div class="small muted">'+esc(x.use)+'</div></div></li>';
+  }).join('');
+  document.getElementById('view').innerHTML =
+    '<div class="card"><div class="ctitle"><span>粉笔课程</span><span class="small muted">点链接直接打开</span></div>'+
+      '<div class="phlist">'+cs+'</div></div>'+
+    '<div class="card"><div class="ctitle"><span>纸质资料</span></div>'+
+      '<ul class="checklist">'+bs+'</ul></div>'+
+    '<div class="card"><div class="ctitle"><span>公安专业科目资料</span><span class="small muted">点标题打开</span></div>'+
+      '<ul class="checklist">'+gg+'</ul></div>'+
+    '<div class="card"><div class="ctitle"><span>需要补充的资料</span></div>'+
+      '<ul class="checklist">'+gs+'</ul></div>';
+}
+
+/* ============ 事件 ============ */
+function render(){
+  document.querySelectorAll('#tabs button').forEach(b=>b.classList.toggle('active', b.dataset.view === state.view));
+  if(state.view === 'overview') renderOverview();
+  else if(state.view === 'calendar') renderCalendar();
+  else if(state.view === 'week') renderWeek();
+  else if(state.view === 'month') renderMonth();
+  else if(state.view === 'material') renderMaterials();
+  else renderPhase();
+  bind();
+}
+function bind(){
+  const v = document.getElementById('view');
+  v.querySelectorAll('.ck[data-date]').forEach(ck=>{
+    ck.onchange = e=>{ toggleDone(e.target.dataset.date, Number(e.target.dataset.idx)); render(); };
+  });
+  v.querySelectorAll('.cell[data-date]').forEach(c=>{
+    c.onclick = ()=>{ state.selected = c.dataset.date; if(ym(state.selected)!==state.calMonth) state.calMonth = ym(state.selected); render(); };
+  });
+  const on = (id, fn)=>{ const el = document.getElementById(id); if(el) el.onclick = fn; };
+  on('prevM', ()=>{ state.calMonth = shiftMonth(state.calMonth,-1); syncSelection(); render(); });
+  on('nextM', ()=>{ state.calMonth = shiftMonth(state.calMonth,1); syncSelection(); render(); });
+  on('toToday', ()=>{ state.calMonth = ym(todayKey); state.selected = todayKey; state.weekKey = mondayOf(todayKey); render(); });
+  on('toExam', ()=>{ state.calMonth = ym(CFG.exam); state.selected = CFG.exam; render(); });
+  on('prevW', ()=>{ state.weekKey = addDays(state.weekKey,-7); render(); });
+  on('nextW', ()=>{ state.weekKey = addDays(state.weekKey,7); render(); });
+  on('curW', ()=>{ state.weekKey = mondayOf(todayKey); render(); });
+  on('prevMo', ()=>{ state.monthKey = shiftMonth(state.monthKey,-1); render(); });
+  on('nextMo', ()=>{ state.monthKey = shiftMonth(state.monthKey,1); render(); });
+  on('curMo', ()=>{ state.monthKey = ym(todayKey); render(); });
+  on('miniPrev', ()=>{ state.miniMonth = shiftMonth(state.miniMonth,-1); render(); });
+  on('miniNext', ()=>{ state.miniMonth = shiftMonth(state.miniMonth,1); render(); });
+  v.querySelectorAll('.mcell[data-mdate]').forEach(c=>{
+    c.onclick = ()=>{
+      state.selected = c.dataset.mdate;
+      state.calMonth = ym(c.dataset.mdate);
+      state.weekKey = mondayOf(c.dataset.mdate);
+      state.view = 'calendar';
+      render();
+      window.scrollTo({top:0,behavior:'smooth'});
+    };
+  });
+  on('miniExpand', ()=>{
+    state.calMonth = ym(state.selected);
+    state.view = 'calendar';
+    render();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+  on('calCollapse', ()=>{
+    state.view = 'overview';
+    render();
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+
+  const wk = state.weekKey, rec = wRec(wk);
+  v.querySelectorAll('.wchk').forEach(el=>{ el.onchange = e=>{ rec.checks[e.target.dataset.i] = e.target.checked; save(); render(); }; });
+  v.querySelectorAll('.wnum').forEach(el=>{ el.onchange = e=>{ rec.nums[e.target.dataset.k] = e.target.value; save(); }; });
+  const wt = v.querySelector('.wtext'); if(wt) wt.onchange = e=>{ rec.text = e.target.value; save(); };
+
+  const mk = state.monthKey, mrec = mRec(mk);
+  v.querySelectorAll('.mchk').forEach(el=>{ el.onchange = e=>{ mrec.checks[e.target.dataset.i] = e.target.checked; save(); render(); }; });
+  v.querySelectorAll('.mnum').forEach(el=>{ el.onchange = e=>{ mrec.nums[e.target.dataset.k] = e.target.value; save(); }; });
+  const mt = v.querySelector('.mtext'); if(mt) mt.onchange = e=>{ mrec.text = e.target.value; save(); };
+}
+function shiftMonth(k, n){
+  const a = k.split('-').map(Number);
+  const d = new Date(a[0], a[1]-1+n, 1);
+  return d.getFullYear()+'-'+p2(d.getMonth()+1);
+}
+function syncSelection(){
+  if(ym(state.selected) === state.calMonth) return;
+  let d = state.calMonth + '-01';
+  if(d < CFG.start) d = CFG.start;
+  if(d > CFG.end) d = CFG.end;
+  state.selected = d;
+  state.weekKey = mondayOf(d);
+}
+document.getElementById('tabs').addEventListener('click', e=>{
+  const b = e.target.closest('button'); if(!b) return;
+  state.view = b.dataset.view; render(); window.scrollTo({top:0,behavior:'smooth'});
+});
+document.getElementById('fabTop').onclick = ()=>window.scrollTo({top:0,behavior:'smooth'});
+document.getElementById('fabToday').onclick = ()=>{
+  state.selected = todayKey;
+  state.calMonth = ym(todayKey);
+  state.weekKey = mondayOf(todayKey);
+  state.monthKey = ym(todayKey);
+  state.miniMonth = ym(todayKey);
+  render();
+  window.scrollTo({top:0,behavior:'smooth'});
+};
+window.addEventListener('scroll', function(){
+  const ring = document.getElementById('fabRing');
+  if(!ring) return;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  const p = h > 0 ? Math.min(1, Math.max(0, window.scrollY / h)) : 0;
+  ring.setAttribute('stroke-dashoffset', String((132 * (1 - p)).toFixed(1)));
+});
+
+/* ================= 时钟、主题、光标光晕 ================= */
+function p2c(n){ return (n<10?'0':'')+n; }
+function updateClocks(){
+  const d = new Date();
+  const t = p2c(d.getHours())+':'+p2c(d.getMinutes())+':'+p2c(d.getSeconds());
+  const ds = d.getFullYear()+' 年 '+(d.getMonth()+1)+' 月 '+d.getDate()+' 日　星期'+'日一二三四五六'[d.getDay()];
+  const a = document.getElementById('clockTime'); if(a) a.textContent = t;
+  const b = document.getElementById('clockDate'); if(b) b.textContent = ds;
+}
+setInterval(updateClocks, 1000);
+updateClocks();
+
+function applyUi(){
+  if(!DB.ui) DB.ui = {theme:'light', hue:214};
+  document.documentElement.setAttribute('data-theme', DB.ui.theme === 'dark' ? 'dark' : 'light');
+  document.documentElement.style.setProperty('--h', String(DB.ui.hue));
+  const b = document.getElementById('themeBtn'); if(b) b.textContent = DB.ui.theme === 'dark' ? '☀️' : '🌙';
+  const r = document.getElementById('hueRange'); if(r) r.value = DB.ui.hue;
+}
+document.getElementById('themeBtn').onclick = ()=>{
+  if(!DB.ui) DB.ui = {theme:'light', hue:214};
+  DB.ui.theme = DB.ui.theme === 'dark' ? 'light' : 'dark';
+  save(); applyUi();
+};
+document.getElementById('hueRange').oninput = e=>{
+  if(!DB.ui) DB.ui = {theme:'light', hue:214};
+  DB.ui.hue = Number(e.target.value);
+  applyUi();
+};
+document.getElementById('hueRange').onchange = ()=>save();
+applyUi();
+
+renderFooter();
+render();
+
+const heroMeta = document.getElementById('heroMeta');
+if(heroMeta){
+  const passed = Math.max(0, diffDays(CFG.start, todayKey) + 1);
+  heroMeta.textContent = '行测 / 申论 / 公安专业科目　共 112 周 · ' + totalTasks() + ' 项任务　已坚持 ' + passed + ' 天　预计笔试 2028-11 月下旬';
+}
+</script>
+</body>
+</html>
