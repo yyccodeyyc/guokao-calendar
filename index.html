@@ -836,8 +836,15 @@ try{
 }catch(e){ storageOK = false; }
 function save(){
   if(!storageOK) return;
+  DB.savedAt = d2s(new Date()) + ' ' + p2(new Date().getHours()) + ':' + p2(new Date().getMinutes());
   try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
   catch(e){ storageOK = false; renderFooter(); }
+  renderFooter();
+}
+function doneCount(){
+  let n = 0;
+  for(const k in DB.done){ for(const i in DB.done[k]) n++; }
+  return n;
 }
 function doneMap(ds){ return DB.done[ds] || (DB.done[ds] = {}); }
 function isDone(ds, i){ return !!doneMap(ds)[i]; }
@@ -918,7 +925,14 @@ const esc = s => String(s).replace(/[&<>"]/g, m => ({'&':'&amp;','<':'&lt;','>':
 /* ============ 渲染：通用 ============ */
 function renderFooter(){
   const el = document.getElementById('storage');
-  el.textContent = storageOK ? '' : '当前打开方式无法保存打卡记录，用浏览器直接打开本文件可以正常保存。';
+  if(!el) return;
+  if(!storageOK){
+    el.textContent = '这个浏览器不允许本地保存，勾选无法留存。检查是否用了无痕模式，或者在浏览器设置里允许本站保存网站数据。';
+    return;
+  }
+  const n = doneCount();
+  el.textContent = '打卡记录保存在本机这个浏览器里，与页面文件无关，更新页面也不会丢。已记录 ' + n + ' 项' +
+    (DB.savedAt ? '，最近保存 ' + DB.savedAt : '') + '。';
 }
 
 function taskRow(ds, i, task){
@@ -1003,7 +1017,7 @@ function miniCalCard(){
   const dim = new Date(Number(k.slice(0,4)), Number(k.slice(5,7)), 0).getDate();
   const rows = Math.ceil((offset + dim) / 7);
   let cells = '';
-  const dow = ['日','一','二','三','四','五','六'];
+  const dow = ['一','二','三','四','五','六','日'];
   for(const w of dow) cells += '<div class="mdow">'+w+'</div>';
   for(let i=0;i<rows*7;i++){
     const ds = addDays(startCell, i);
