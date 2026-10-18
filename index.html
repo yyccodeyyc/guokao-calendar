@@ -283,6 +283,8 @@ html[data-theme="dark"] .hlbox{background:rgba(255,255,255,.06);color:var(--mute
 .sync-panel button.g{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:7px 13px;font-size:13px;cursor:pointer;font-family:inherit}
 .sync-panel button.g:hover{border-color:var(--accent)}
 .sync-panel .st{margin-top:12px;font-size:12.5px;color:var(--muted);min-height:18px;word-break:break-word}
+.ro-banner{max-width:1180px;margin:10px auto 0;padding:8px 14px;border-radius:12px;border:1px solid var(--line);background:var(--accent-soft);color:var(--muted);font-size:12.5px;text-align:center}
+body.readonly .ck,body.readonly .wchk,body.readonly .mchk,body.readonly .wnum,body.readonly .mnum,body.readonly .wtext,body.readonly .mtext{opacity:.6;cursor:not-allowed}
 </style>
 </head>
 <body>
@@ -316,6 +318,7 @@ html[data-theme="dark"] .hlbox{background:rgba(255,255,255,.06);color:var(--mute
     <button data-view="material">资料与课程</button>
   </nav>
 </header>
+<div class="ro-banner" id="roBanner" hidden>只读浏览 · 这是日历主人的学习进度，由主人在自己的设备上更新；访客勾选不会保存。</div>
 <main id="view"></main>
 <footer>
   <div class="small" id="storage"></div>
@@ -333,14 +336,14 @@ html[data-theme="dark"] .hlbox{background:rgba(255,255,255,.06);color:var(--mute
 
 <div class="sync-mask" id="syncMask" hidden>
   <div class="sync-panel">
-    <h3>GitHub 云同步</h3>
-    <div class="hint">数据写入你自己的 GitHub 私有仓库，多台设备共用同一份。Token 只保存在本机浏览器，建议用 fine-grained PAT，只授予该数据仓库的 Contents 读写权限，并设置有效期，先建好私有仓库再填这里。</div>
-    <label>GitHub Token</label>
+    <h3>进度发布设置</h3>
+    <div class="hint">日历会对所有访客显示最新进度，数据存在站点仓库的 data.json 里，访客打开就能看，不需要任何设置。只有日历主人需要在这里填一次 Token：fine-grained PAT，只授予站点仓库 yyccodeyyc/guokao-calendar 的 Contents 读写权限。Token 只保存在本机浏览器。</div>
+    <label>GitHub Token（主人设备填写，访客留空）</label>
     <input id="syncToken" type="password" placeholder="github_pat_..." autocomplete="off" spellcheck="false">
-    <label>数据仓库（owner/repo，建议 private）</label>
-    <input id="syncRepo" placeholder="yyccodeyyc/guokao-calendar-data" autocomplete="off" spellcheck="false">
+    <label>数据仓库</label>
+    <input id="syncRepo" placeholder="yyccodeyyc/guokao-calendar" autocomplete="off" spellcheck="false">
     <label>文件路径</label>
-    <input id="syncPath" placeholder="gk2029-data.json" autocomplete="off" spellcheck="false">
+    <input id="syncPath" placeholder="data.json" autocomplete="off" spellcheck="false">
     <div class="sync-row">
       <button class="p" id="syncSaveBtn">保存设置</button>
       <button class="g" id="syncPullBtn">从云端拉取</button>
@@ -878,9 +881,11 @@ function save(){
   schedulePush();
 }
 
-/* ============ GitHub 云同步 ============ */
+/* ============ GitHub 云同步（公开只读 + 主人编辑） ============ */
 const SYNC_KEY = 'gk2029.sync.v1';
-let SYNC = {token:'', repo:'', path:'gk2029-data.json', sha:'', lastSync:''};
+const SITE_REPO = 'yyccodeyyc/guokao-calendar';
+const DATA_PATH = 'data.json';
+let SYNC = {token:'', repo:SITE_REPO, path:DATA_PATH, sha:'', lastSync:''};
 let syncPushTimer = null, syncBusy = false;
 function loadSyncCfg(){
   try{
@@ -888,8 +893,8 @@ function loadSyncCfg(){
     if(raw){
       const o = JSON.parse(raw) || {};
       SYNC.token = o.token || '';
-      SYNC.repo = o.repo || '';
-      SYNC.path = o.path || 'gk2029-data.json';
+      SYNC.repo = o.repo || SITE_REPO;
+      SYNC.path = o.path || DATA_PATH;
       SYNC.sha = o.sha || '';
       SYNC.lastSync = o.lastSync || '';
     }
@@ -898,7 +903,8 @@ function loadSyncCfg(){
 function persistSyncCfg(){
   try{ localStorage.setItem(SYNC_KEY, JSON.stringify({token:SYNC.token, repo:SYNC.repo, path:SYNC.path, sha:SYNC.sha, lastSync:SYNC.lastSync})); }catch(e){}
 }
-function syncReady(){ return !!(SYNC.token && SYNC.repo); }
+function canEdit(){ return !!SYNC.token; }
+function dataUrl(){ const p = String(SYNC.path || DATA_PATH).split('/').map(encodeURIComponent).join('/'); return 'https://raw.githubusercontent.com/' + SYNC.repo + '/main/' + p + '?t=' + Date.now(); }
 function setSyncStatus(msg){ const el = document.getElementById('syncStatus'); if(el) el.textContent = msg; }
 function fmtTime(iso){
   try{ const d = new Date(iso); if(isNaN(d.getTime())) return iso; return d2s(d) + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes()); }catch(e){ return iso; }
@@ -918,84 +924,81 @@ function b64dec(b64){
 function ghHeaders(){
   return {'Authorization':'Bearer ' + SYNC.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28'};
 }
-function ghUrl(){
-  const p = String(SYNC.path || 'gk2029-data.json').split('/').map(encodeURIComponent).join('/');
+function apiUrl(){
+  const p = String(SYNC.path || DATA_PATH).split('/').map(encodeURIComponent).join('/');
   return 'https://api.github.com/repos/' + SYNC.repo + '/contents/' + p;
 }
-async function ghGet(){
-  const res = await fetch(ghUrl() + '?t=' + Date.now(), {headers: ghHeaders(), cache:'no-store'});
+async function fetchSha(){
+  const res = await fetch(apiUrl() + '?t=' + Date.now(), {headers: ghHeaders(), cache:'no-store'});
   if(res.status === 404) return null;
-  if(!res.ok){
-    const t = await res.text();
-    throw new Error('读取失败 HTTP ' + res.status + '：' + String(t).slice(0,120));
-  }
+  if(!res.ok) throw new Error('读取云端信息 HTTP ' + res.status);
   const j = await res.json();
-  return {sha: j.sha, text: b64dec(j.content || '')};
+  return j.sha || null;
 }
-async function ghPut(text, sha){
-  const body = {message:'study calendar sync ' + new Date().toISOString(), content: b64enc(text)};
+function putContents(text, sha){
+  const body = {message:'update study calendar data ' + new Date().toISOString(), content: b64enc(text)};
   if(sha) body.sha = sha;
-  return fetch(ghUrl(), {method:'PUT', headers: Object.assign({'Content-Type':'application/json'}, ghHeaders()), body: JSON.stringify(body), cache:'no-store'});
+  return fetch(apiUrl(), {method:'PUT', headers: Object.assign({'Content-Type':'application/json'}, ghHeaders()), body: JSON.stringify(body), cache:'no-store'});
 }
 function applyRemoteDb(remote){
   DB = Object.assign({done:{}, week:{}, month:{}}, remote);
   try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){}
 }
-async function pullRemote(manual){
-  if(!syncReady()){ if(manual) setSyncStatus('还没有配置同步，先填 Token 和仓库并保存设置'); return; }
-  setSyncStatus('正在从云端拉取…');
+async function pullPublic(manual){
   try{
-    const remote = await ghGet();
-    if(!remote){ setSyncStatus('云端还没有数据，勾选一项后会自动上传'); return; }
-    let r;
-    try{ r = JSON.parse(remote.text); }catch(e){ throw new Error('云端文件不是合法 JSON'); }
-    SYNC.sha = remote.sha;
+    const res = await fetch(dataUrl(), {cache:'no-store'});
+    if(res.status === 404){ if(manual) setSyncStatus('云端还没有数据，点“上传到云端”发布一次'); return; }
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    const r = JSON.parse(await res.text());
     const localAt = DB.savedAt || '', remoteAt = r.savedAt || '';
     if(manual || remoteAt > localAt){
       applyRemoteDb(r);
       applyUi();
       render();
       renderFooter();
-      setSyncStatus('已从云端拉取 ' + (remoteAt || '（无时间戳）'));
-    } else if(localAt > remoteAt){
-      await pushRemote(false);
-      return;
-    } else {
+      setSyncStatus('已拉取云端进度 ' + (remoteAt || '（无时间戳）'));
+      SYNC.lastSync = new Date().toISOString();
+      persistSyncCfg();
+    } else if(manual){
       setSyncStatus('本机与云端一致 ' + (remoteAt || ''));
     }
-    SYNC.lastSync = new Date().toISOString();
-    persistSyncCfg();
-  }catch(e){ setSyncStatus('拉取失败：' + e.message); }
+  }catch(e){ if(manual) setSyncStatus('拉取失败：' + e.message); }
 }
 async function pushRemote(manual){
-  if(!syncReady()){ setSyncStatus('还没有配置同步，先填 Token 和仓库并保存设置'); return; }
+  if(!canEdit()){ setSyncStatus('只读模式：先填入 Token 才能发布进度'); return; }
   if(syncBusy) return;
   syncBusy = true;
   setSyncStatus('正在上传…');
   try{
-    const cur = await ghGet();
+    const sha = await fetchSha();
     const text = JSON.stringify(DB);
-    let res = await ghPut(text, cur ? cur.sha : '');
-    if(res.status === 409){
-      const again = await ghGet();
-      res = await ghPut(text, again ? again.sha : '');
-    }
+    let res = await putContents(text, sha);
+    if(res.status === 409){ res = await putContents(text, await fetchSha()); }
     if(!res.ok){
       const t = await res.text();
       throw new Error('HTTP ' + res.status + '：' + String(t).slice(0,140));
     }
-    const j = await res.json();
-    SYNC.sha = j.content ? j.content.sha : (cur ? cur.sha : '');
     SYNC.lastSync = new Date().toISOString();
     persistSyncCfg();
-    setSyncStatus('已上传 ' + (DB.savedAt || ''));
+    setSyncStatus('已发布到云端 ' + (DB.savedAt || ''));
+    renderFooter();
   }catch(e){ setSyncStatus('上传失败：' + e.message); }
   finally{ syncBusy = false; }
 }
 function schedulePush(){
-  if(!syncReady()) return;
+  if(!canEdit()) return;
   if(syncPushTimer) clearTimeout(syncPushTimer);
-  syncPushTimer = setTimeout(function(){ pushRemote(false); }, 1500);
+  syncPushTimer = setTimeout(function(){ pushRemote(false); }, 2500);
+}
+function applyReadOnly(root){
+  const ro = !canEdit();
+  const banner = document.getElementById('roBanner');
+  if(banner) banner.hidden = !ro;
+  document.body.classList.toggle('readonly', ro);
+  if(root && ro){
+    root.querySelectorAll('input').forEach(function(el){ el.disabled = true; });
+    root.querySelectorAll('textarea').forEach(function(el){ el.disabled = true; });
+  }
 }
 function doneCount(){
   let n = 0;
@@ -1087,8 +1090,12 @@ function renderFooter(){
     return;
   }
   const n = doneCount();
-  let tip = '。想换设备也能看到记录，点右上角 ☁️ 配置云同步，数据写入你自己的 GitHub 私有仓库。';
-  if(syncReady()) tip = '。云同步已配置' + (SYNC.lastSync ? '，最近同步 ' + fmtTime(SYNC.lastSync) : '，等待首次同步') + '。';
+  let tip;
+  if(canEdit()){
+    tip = '。编辑模式：勾选后自动发布到云端' + (SYNC.lastSync ? '，最近同步 ' + fmtTime(SYNC.lastSync) : '') + '。';
+  } else {
+    tip = '。只读浏览：这是日历主人的学习进度，由主人在自己设备上更新；点右上角 ☁️ 填入 Token 可切换为编辑模式。';
+  }
   el.textContent = '打卡记录保存在本机这个浏览器里，与页面文件无关，更新页面也不会丢。已记录 ' + n + ' 项' +
     (DB.savedAt ? '，最近保存 ' + DB.savedAt : '') + tip;
 }
@@ -1756,6 +1763,7 @@ function bind(){
   v.querySelectorAll('.mchk').forEach(el=>{ el.onchange = e=>{ mrec.checks[e.target.dataset.i] = e.target.checked; save(); render(); }; });
   v.querySelectorAll('.mnum').forEach(el=>{ el.onchange = e=>{ mrec.nums[e.target.dataset.k] = e.target.value; save(); }; });
   const mt = v.querySelector('.mtext'); if(mt) mt.onchange = e=>{ mrec.text = e.target.value; save(); };
+  applyReadOnly(v);
 }
 function shiftMonth(k, n){
   const a = k.split('-').map(Number);
@@ -1827,22 +1835,22 @@ applyUi();
 renderFooter();
 render();
 
-/* ================= 云同步初始化 ================= */
+/* ================= 云同步初始化（公开只读 + 主人编辑） ================= */
 loadSyncCfg();
 function openSyncPanel(){
   const mask = document.getElementById('syncMask');
   if(!mask) return;
   document.getElementById('syncToken').value = SYNC.token;
   document.getElementById('syncRepo').value = SYNC.repo;
-  document.getElementById('syncPath').value = SYNC.path || 'gk2029-data.json';
-  setSyncStatus(syncReady() ? ('已配置 ' + SYNC.repo + (SYNC.lastSync ? '，最近同步 ' + fmtTime(SYNC.lastSync) : '')) : '未配置');
+  document.getElementById('syncPath').value = SYNC.path || DATA_PATH;
+  setSyncStatus(canEdit() ? ('编辑模式 · ' + SYNC.repo + (SYNC.lastSync ? '，最近同步 ' + fmtTime(SYNC.lastSync) : '')) : '只读浏览：访客不用填；主人在自己设备填入 Token 后可编辑并发布');
   mask.hidden = false;
 }
 function closeSyncPanel(){
   const mask = document.getElementById('syncMask');
   if(mask) mask.hidden = true;
 }
-let lastAutoPull = 0;
+let lastAutoPull = Date.now();
 (function bindSyncUi(){
   const btn = document.getElementById('syncBtn');
   if(btn) btn.onclick = openSyncPanel;
@@ -1850,16 +1858,16 @@ let lastAutoPull = 0;
   if(saveBtn) saveBtn.onclick = function(){
     SYNC.token = document.getElementById('syncToken').value.trim();
     SYNC.repo = document.getElementById('syncRepo').value.trim()
-      .replace(/^https?:\/\/github\.com\//i,'').replace(/\.git$/i,'').replace(/\/+$/,'');
-    SYNC.path = document.getElementById('syncPath').value.trim() || 'gk2029-data.json';
+      .replace(/^https?:\/\/github\.com\//i,'').replace(/\.git$/i,'').replace(/\/+$/,'') || SITE_REPO;
+    SYNC.path = document.getElementById('syncPath').value.trim() || DATA_PATH;
     persistSyncCfg();
     renderFooter();
-    if(!syncReady()){ setSyncStatus('Token 和仓库都要填'); return; }
-    setSyncStatus('设置已保存，正在检查云端…');
-    pullRemote(false);
+    applyReadOnly(document.getElementById('view'));
+    if(SYNC.token){ setSyncStatus('编辑模式已开启，正在拉取云端进度…'); pullPublic(false); }
+    else { setSyncStatus('已清除 Token，本机转为只读浏览'); }
   };
   const pullBtn = document.getElementById('syncPullBtn');
-  if(pullBtn) pullBtn.onclick = function(){ pullRemote(true); };
+  if(pullBtn) pullBtn.onclick = function(){ pullPublic(true); };
   const pushBtn = document.getElementById('syncPushBtn');
   if(pushBtn) pushBtn.onclick = function(){ pushRemote(true); };
   const closeBtn = document.getElementById('syncCloseBtn');
@@ -1867,14 +1875,21 @@ let lastAutoPull = 0;
   const mask = document.getElementById('syncMask');
   if(mask) mask.addEventListener('click', function(e){ if(e.target === this) closeSyncPanel(); });
 })();
-if(syncReady()){ lastAutoPull = Date.now(); pullRemote(false); }
-document.addEventListener('visibilitychange', function(){
-  if(document.visibilityState === 'visible' && syncReady() && Date.now() - lastAutoPull > 60000){
+applyReadOnly(document.getElementById('view'));
+pullPublic(false);
+setInterval(function(){
+  if(document.visibilityState === 'visible' && Date.now() - lastAutoPull > 30000){
     lastAutoPull = Date.now();
-    pullRemote(false);
+    pullPublic(false);
+  }
+}, 30000);
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible' && Date.now() - lastAutoPull > 15000){
+    lastAutoPull = Date.now();
+    pullPublic(false);
   }
 });
-window.addEventListener('online', function(){ if(syncReady()) pullRemote(false); });
+window.addEventListener('online', function(){ pullPublic(false); });
 
 const heroMeta = document.getElementById('heroMeta');
 if(heroMeta){
