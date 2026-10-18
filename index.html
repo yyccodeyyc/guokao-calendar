@@ -269,6 +269,20 @@ html[data-theme="dark"] .hlbox{background:rgba(255,255,255,.06);color:var(--mute
 .fab.ring{position:relative}
 .fab .arrow{font-size:17px;line-height:1}
 .fab small{position:absolute;bottom:9px;font-size:9px;color:var(--muted)}
+/* ===== 云同步面板 ===== */
+.sync-mask{position:fixed;inset:0;z-index:60;display:flex;align-items:center;justify-content:center;padding:16px;background:rgba(15,23,42,.45)}
+.sync-mask[hidden]{display:none}
+.sync-panel{width:100%;max-width:460px;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 20px 50px rgba(20,32,55,.22);color:var(--text);max-height:90vh;overflow:auto}
+.sync-panel h3{margin:0 0 6px;font-size:15.5px}
+.sync-panel .hint{color:var(--muted);font-size:12.5px;margin-bottom:12px;line-height:1.6}
+.sync-panel label{display:block;font-size:12.5px;color:var(--muted);margin:10px 0 4px}
+.sync-panel input{width:100%;padding:8px 10px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--text);font-family:inherit;font-size:13px;box-sizing:border-box}
+.sync-panel input:focus{outline:none;border-color:var(--accent)}
+.sync-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.sync-panel button.p{background:var(--accent);color:#fff;border:1px solid var(--accent);border-radius:9px;padding:7px 13px;font-size:13px;cursor:pointer;font-family:inherit}
+.sync-panel button.g{background:transparent;color:var(--text);border:1px solid var(--line);border-radius:9px;padding:7px 13px;font-size:13px;cursor:pointer;font-family:inherit}
+.sync-panel button.g:hover{border-color:var(--accent)}
+.sync-panel .st{margin-top:12px;font-size:12.5px;color:var(--muted);min-height:18px;word-break:break-word}
 </style>
 </head>
 <body>
@@ -289,6 +303,7 @@ html[data-theme="dark"] .hlbox{background:rgba(255,255,255,.06);color:var(--mute
       <div class="hero-tools">
         <button class="iconbtn" id="themeBtn" title="切换亮色与暗色">🌙</button>
         <input class="hue" id="hueRange" type="range" min="0" max="360" step="1" value="214" title="拖动切换主题色" />
+        <button class="iconbtn" id="syncBtn" title="云同步设置">☁️</button>
       </div>
     </div>
   </div>
@@ -314,6 +329,26 @@ html[data-theme="dark"] .hlbox{background:rgba(255,255,255,.06);color:var(--mute
     <span class="arrow">↑</span>
   </button>
   <button class="fab" id="fabToday" title="回到今天">今天</button>
+</div>
+
+<div class="sync-mask" id="syncMask" hidden>
+  <div class="sync-panel">
+    <h3>GitHub 云同步</h3>
+    <div class="hint">数据写入你自己的 GitHub 私有仓库，多台设备共用同一份。Token 只保存在本机浏览器，建议用 fine-grained PAT，只授予该数据仓库的 Contents 读写权限，并设置有效期，先建好私有仓库再填这里。</div>
+    <label>GitHub Token</label>
+    <input id="syncToken" type="password" placeholder="github_pat_..." autocomplete="off" spellcheck="false">
+    <label>数据仓库（owner/repo，建议 private）</label>
+    <input id="syncRepo" placeholder="yyccodeyyc/guokao-calendar-data" autocomplete="off" spellcheck="false">
+    <label>文件路径</label>
+    <input id="syncPath" placeholder="gk2029-data.json" autocomplete="off" spellcheck="false">
+    <div class="sync-row">
+      <button class="p" id="syncSaveBtn">保存设置</button>
+      <button class="g" id="syncPullBtn">从云端拉取</button>
+      <button class="g" id="syncPushBtn">上传到云端</button>
+      <button class="g" id="syncCloseBtn">关闭</button>
+    </div>
+    <div class="st" id="syncStatus">未配置</div>
+  </div>
 </div>
 
 <script>
@@ -840,6 +875,127 @@ function save(){
   try{ localStorage.setItem(KEY, JSON.stringify(DB)); }
   catch(e){ storageOK = false; renderFooter(); }
   renderFooter();
+  schedulePush();
+}
+
+/* ============ GitHub 云同步 ============ */
+const SYNC_KEY = 'gk2029.sync.v1';
+let SYNC = {token:'', repo:'', path:'gk2029-data.json', sha:'', lastSync:''};
+let syncPushTimer = null, syncBusy = false;
+function loadSyncCfg(){
+  try{
+    const raw = localStorage.getItem(SYNC_KEY);
+    if(raw){
+      const o = JSON.parse(raw) || {};
+      SYNC.token = o.token || '';
+      SYNC.repo = o.repo || '';
+      SYNC.path = o.path || 'gk2029-data.json';
+      SYNC.sha = o.sha || '';
+      SYNC.lastSync = o.lastSync || '';
+    }
+  }catch(e){}
+}
+function persistSyncCfg(){
+  try{ localStorage.setItem(SYNC_KEY, JSON.stringify({token:SYNC.token, repo:SYNC.repo, path:SYNC.path, sha:SYNC.sha, lastSync:SYNC.lastSync})); }catch(e){}
+}
+function syncReady(){ return !!(SYNC.token && SYNC.repo); }
+function setSyncStatus(msg){ const el = document.getElementById('syncStatus'); if(el) el.textContent = msg; }
+function fmtTime(iso){
+  try{ const d = new Date(iso); if(isNaN(d.getTime())) return iso; return d2s(d) + ' ' + p2(d.getHours()) + ':' + p2(d.getMinutes()); }catch(e){ return iso; }
+}
+function b64enc(str){
+  const bytes = new TextEncoder().encode(str);
+  let bin = '';
+  for(let i=0;i<bytes.length;i++) bin += String.fromCharCode(bytes[i]);
+  return btoa(bin);
+}
+function b64dec(b64){
+  const bin = atob(String(b64).replace(/\s+/g,''));
+  const bytes = new Uint8Array(bin.length);
+  for(let i=0;i<bin.length;i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+}
+function ghHeaders(){
+  return {'Authorization':'Bearer ' + SYNC.token, 'Accept':'application/vnd.github+json', 'X-GitHub-Api-Version':'2022-11-28'};
+}
+function ghUrl(){
+  const p = String(SYNC.path || 'gk2029-data.json').split('/').map(encodeURIComponent).join('/');
+  return 'https://api.github.com/repos/' + SYNC.repo + '/contents/' + p;
+}
+async function ghGet(){
+  const res = await fetch(ghUrl() + '?t=' + Date.now(), {headers: ghHeaders(), cache:'no-store'});
+  if(res.status === 404) return null;
+  if(!res.ok){
+    const t = await res.text();
+    throw new Error('读取失败 HTTP ' + res.status + '：' + String(t).slice(0,120));
+  }
+  const j = await res.json();
+  return {sha: j.sha, text: b64dec(j.content || '')};
+}
+async function ghPut(text, sha){
+  const body = {message:'study calendar sync ' + new Date().toISOString(), content: b64enc(text)};
+  if(sha) body.sha = sha;
+  return fetch(ghUrl(), {method:'PUT', headers: Object.assign({'Content-Type':'application/json'}, ghHeaders()), body: JSON.stringify(body), cache:'no-store'});
+}
+function applyRemoteDb(remote){
+  DB = Object.assign({done:{}, week:{}, month:{}}, remote);
+  try{ localStorage.setItem(KEY, JSON.stringify(DB)); }catch(e){}
+}
+async function pullRemote(manual){
+  if(!syncReady()){ if(manual) setSyncStatus('还没有配置同步，先填 Token 和仓库并保存设置'); return; }
+  setSyncStatus('正在从云端拉取…');
+  try{
+    const remote = await ghGet();
+    if(!remote){ setSyncStatus('云端还没有数据，勾选一项后会自动上传'); return; }
+    let r;
+    try{ r = JSON.parse(remote.text); }catch(e){ throw new Error('云端文件不是合法 JSON'); }
+    SYNC.sha = remote.sha;
+    const localAt = DB.savedAt || '', remoteAt = r.savedAt || '';
+    if(manual || remoteAt > localAt){
+      applyRemoteDb(r);
+      applyUi();
+      render();
+      renderFooter();
+      setSyncStatus('已从云端拉取 ' + (remoteAt || '（无时间戳）'));
+    } else if(localAt > remoteAt){
+      await pushRemote(false);
+      return;
+    } else {
+      setSyncStatus('本机与云端一致 ' + (remoteAt || ''));
+    }
+    SYNC.lastSync = new Date().toISOString();
+    persistSyncCfg();
+  }catch(e){ setSyncStatus('拉取失败：' + e.message); }
+}
+async function pushRemote(manual){
+  if(!syncReady()){ setSyncStatus('还没有配置同步，先填 Token 和仓库并保存设置'); return; }
+  if(syncBusy) return;
+  syncBusy = true;
+  setSyncStatus('正在上传…');
+  try{
+    const cur = await ghGet();
+    const text = JSON.stringify(DB);
+    let res = await ghPut(text, cur ? cur.sha : '');
+    if(res.status === 409){
+      const again = await ghGet();
+      res = await ghPut(text, again ? again.sha : '');
+    }
+    if(!res.ok){
+      const t = await res.text();
+      throw new Error('HTTP ' + res.status + '：' + String(t).slice(0,140));
+    }
+    const j = await res.json();
+    SYNC.sha = j.content ? j.content.sha : (cur ? cur.sha : '');
+    SYNC.lastSync = new Date().toISOString();
+    persistSyncCfg();
+    setSyncStatus('已上传 ' + (DB.savedAt || ''));
+  }catch(e){ setSyncStatus('上传失败：' + e.message); }
+  finally{ syncBusy = false; }
+}
+function schedulePush(){
+  if(!syncReady()) return;
+  if(syncPushTimer) clearTimeout(syncPushTimer);
+  syncPushTimer = setTimeout(function(){ pushRemote(false); }, 1500);
 }
 function doneCount(){
   let n = 0;
@@ -931,8 +1087,10 @@ function renderFooter(){
     return;
   }
   const n = doneCount();
+  let tip = '。想换设备也能看到记录，点右上角 ☁️ 配置云同步，数据写入你自己的 GitHub 私有仓库。';
+  if(syncReady()) tip = '。云同步已配置' + (SYNC.lastSync ? '，最近同步 ' + fmtTime(SYNC.lastSync) : '，等待首次同步') + '。';
   el.textContent = '打卡记录保存在本机这个浏览器里，与页面文件无关，更新页面也不会丢。已记录 ' + n + ' 项' +
-    (DB.savedAt ? '，最近保存 ' + DB.savedAt : '') + '。';
+    (DB.savedAt ? '，最近保存 ' + DB.savedAt : '') + tip;
 }
 
 function taskRow(ds, i, task){
@@ -1668,6 +1826,55 @@ applyUi();
 
 renderFooter();
 render();
+
+/* ================= 云同步初始化 ================= */
+loadSyncCfg();
+function openSyncPanel(){
+  const mask = document.getElementById('syncMask');
+  if(!mask) return;
+  document.getElementById('syncToken').value = SYNC.token;
+  document.getElementById('syncRepo').value = SYNC.repo;
+  document.getElementById('syncPath').value = SYNC.path || 'gk2029-data.json';
+  setSyncStatus(syncReady() ? ('已配置 ' + SYNC.repo + (SYNC.lastSync ? '，最近同步 ' + fmtTime(SYNC.lastSync) : '')) : '未配置');
+  mask.hidden = false;
+}
+function closeSyncPanel(){
+  const mask = document.getElementById('syncMask');
+  if(mask) mask.hidden = true;
+}
+let lastAutoPull = 0;
+(function bindSyncUi(){
+  const btn = document.getElementById('syncBtn');
+  if(btn) btn.onclick = openSyncPanel;
+  const saveBtn = document.getElementById('syncSaveBtn');
+  if(saveBtn) saveBtn.onclick = function(){
+    SYNC.token = document.getElementById('syncToken').value.trim();
+    SYNC.repo = document.getElementById('syncRepo').value.trim()
+      .replace(/^https?:\/\/github\.com\//i,'').replace(/\.git$/i,'').replace(/\/+$/,'');
+    SYNC.path = document.getElementById('syncPath').value.trim() || 'gk2029-data.json';
+    persistSyncCfg();
+    renderFooter();
+    if(!syncReady()){ setSyncStatus('Token 和仓库都要填'); return; }
+    setSyncStatus('设置已保存，正在检查云端…');
+    pullRemote(false);
+  };
+  const pullBtn = document.getElementById('syncPullBtn');
+  if(pullBtn) pullBtn.onclick = function(){ pullRemote(true); };
+  const pushBtn = document.getElementById('syncPushBtn');
+  if(pushBtn) pushBtn.onclick = function(){ pushRemote(true); };
+  const closeBtn = document.getElementById('syncCloseBtn');
+  if(closeBtn) closeBtn.onclick = closeSyncPanel;
+  const mask = document.getElementById('syncMask');
+  if(mask) mask.addEventListener('click', function(e){ if(e.target === this) closeSyncPanel(); });
+})();
+if(syncReady()){ lastAutoPull = Date.now(); pullRemote(false); }
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible' && syncReady() && Date.now() - lastAutoPull > 60000){
+    lastAutoPull = Date.now();
+    pullRemote(false);
+  }
+});
+window.addEventListener('online', function(){ if(syncReady()) pullRemote(false); });
 
 const heroMeta = document.getElementById('heroMeta');
 if(heroMeta){
